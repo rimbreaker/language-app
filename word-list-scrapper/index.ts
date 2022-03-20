@@ -61,9 +61,9 @@ const downloadSpreadSheet = async function (link: string): Promise<any> {
 
       const encoding = JSON.parse(readFileSync("./encoding.json").toString());
 
-      console.log(link2.split("/")[5]);
       const languageName = link2.split("/")[5].split(".")[0];
 
+      console.log(languageName);
       if (link2.split("/")[5].split(".")[1] === "xlsx") {
         const workbook = xlsx.read(spreadSheet);
         const workSheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -97,12 +97,25 @@ const downloadSpreadSheet = async function (link: string): Promise<any> {
       writeFileSync(link2.split("/")[5], spreadSheet);
     }
   } catch (e) {
-    console.log("failed: " + link);
+    console.warn("failed: " + link);
   }
 };
 
+const scrapeEng = async () => {
+  const html: string = (
+    await axios.get(
+      "https://www.vocabularyfirst.com/1000-most-common-english-words/"
+    )
+  ).data;
+
+  const table = html.split("/tr")[1];
+
+  writeFileSync(
+    "US.json",
+    JSON.stringify(table.slice(27, -6).split("<br /> "))
+  );
+};
+
 (async () => {
-  console.log("start");
-  await scrape();
-  console.log("finish");
+  await scrapeEng();
 })();
