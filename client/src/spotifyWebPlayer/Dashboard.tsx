@@ -115,6 +115,7 @@ export default function Dashboard({ code }: { code: string }) {
             </div>
             {ytId && <ReactPlayer controls url={`https://www.youtube.com/watch?v=${ytId}`} />}
             {ytId && <button onClick={() => window.open(`https://www.youtube.com/watch_videos?video_ids=${ytId},7J_qcttfnJA&title=english1`, '_blank')}> open playlist</button>}
+            <button onClick={() => spotifyApi.createPlaylist('test playlist')}> add playlist</button>
         </Container>
     )
 }

@@ -33,6 +33,25 @@ router.post("/refresh", (req, res) => {
     });
 });
 
+router.get("/search", (_req, res) => {
+  const spotifyApi = new SpotifyWebApi({
+    redirectUri: REDIRECT_URI,
+    clientId: CLIENT_ID,
+    clientSecret: CLIENT_SECRET,
+  });
+
+  spotifyApi.clientCredentialsGrant().then(async (data) => {
+    console.log(data);
+
+    spotifyApi.setAccessToken(data.body.access_token);
+    const searchResult = await spotifyApi.searchTracks("nie genre:indie", {
+      market: "PL",
+    });
+
+    res.json(searchResult);
+  });
+});
+
 router.post("/login", (req, res) => {
   const code = req.body.code;
   const spotifyApi = new SpotifyWebApi({
