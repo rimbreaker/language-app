@@ -39,11 +39,11 @@ function App() {
 
   const q = query(coursesRef, where("userData", "==", doc(db, 'usersData/', user?.email || 'lol')), limit(10))
 
-  const userCoursesUnsub = user ? onSnapshot(q, () => console.log("change in courses")) : () => null
+  // const userCoursesUnsub = user ? onSnapshot(q, () => console.log("change in courses")) : () => null
 
   const logout = () => {
     signOut(auth);
-    userCoursesUnsub();
+    //  userCoursesUnsub();
   }
 
   const login = () => {
@@ -55,12 +55,21 @@ function App() {
       }
     })
   }
+  const [isOver, setIsOver] = useState(false)
 
+  const selectionHandler = () => {
+    if (isOver) {
+      const selection = document.getSelection()
+      const range = selection?.getRangeAt(0)
+      console.log(selection?.anchorNode?.textContent?.slice(range?.startOffset, range?.endOffset))
+    }
+  }
 
   return (
     <div className="App">
       <header className="App-header">
         {user ? <button onClick={() => logout()}>logout</button> : <button onClick={() => login()}>login</button>}
+        <p onMouseUp={selectionHandler} onMouseEnter={() => setIsOver(true)} onMouseLeave={() => setIsOver(false)} >tekst lorem ipsum dłuższy tekst</p>
         <Switch>
           <Route exact path="/player" component={Player} />
           <Route exact path='/course/:courseLang' component={CoursePageByCourseLang} />
