@@ -114,8 +114,9 @@ export default function Dashboard({ code }: { code: string }) {
                 <Player accessToken={accessToken} trackUri={playingTrack?.uri} />
             </div>
             {ytId && <ReactPlayer controls url={`https://www.youtube.com/watch?v=${ytId}`} />}
-            {ytId && <button onClick={() => window.open(`https://www.youtube.com/watch_videos?video_ids=${ytId},7J_qcttfnJA&title=english1`, '_blank')}> open playlist</button>}
-            <button onClick={() => spotifyApi.createPlaylist('test playlist')}> add playlist</button>
+            {ytId && <button onClick={() => window.open(`https://www.youtube.com/watch_videos?video_ids=${ytId},7J_qcttfnJA&title=english1`, '_blank')}> open yt playlist</button>}
+            <button onClick={() => spotifyApi.createPlaylist('test playlist')}> add spotify playlist</button>
+            <button onClick={() => window.open('https://calendar.google.com/calendar/event?action=TEMPLATE&dates=20211001/20211002&text=Time+for+translations&details=Description%0Adescription%0A+%0Adecription+description&location=https://google.com&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D10', '_blank')}>add event to google calendar</button>
         </Container>
     )
 }
