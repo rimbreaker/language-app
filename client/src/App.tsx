@@ -11,9 +11,17 @@ import availableLangs from './encoding.json'
 import CoursePage from './CoursePage';
 import { Switch, Route, withRouter, Redirect, RouteComponentProps } from 'react-router-dom'
 import { useHistory } from 'react-router';
+import Player from './spotifyWebPlayer/App'
+import config from './config.env.json'
 
 const firebaseConfig = {
-
+  apiKey: config.apiKey,
+  authDomain: config.authDomain,
+  projectId: config.projectId,
+  storageBucket: config.storageBucket,
+  messagingSenderId: config.messagingSenderId,
+  appId: config.appId,
+  measurementId: config.measurementId
 };
 
 const app = initializeApp(firebaseConfig)
@@ -51,9 +59,10 @@ function App() {
 
   return (
     <div className="App">
-      {user ? <button onClick={() => logout()}>logout</button> : <button onClick={() => login()}>login</button>}
       <header className="App-header">
+        {user ? <button onClick={() => logout()}>logout</button> : <button onClick={() => login()}>login</button>}
         <Switch>
+          <Route exact path="/player" component={Player} />
           <Route exact path='/course/:courseLang' component={CoursePageByCourseLang} />
           <Route exact path='/' component={HomePage} />
           <Redirect to='/' />

@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "axios": "^0.26.1",
+    "bing-translate-api": "^2.3.0",
     "jsdom": "^19.0.0",
     "node-ts": "^5.1.2",
     "xlsx": "^0.18.4"

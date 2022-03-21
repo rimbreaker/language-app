@@ -5,6 +5,8 @@
 */dist
 /.pnp
 .pnp.js
+.env
+.env.json
 
 # testing
 */coverage

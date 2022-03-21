@@ -1,8 +1,10 @@
+require("dotenv").config();
 import express from "express";
 import cors from "cors";
 import accessEnv from "./util/accessEnv";
 import setupSwagger from "./util/setupSwagger";
 import spotifySongsRouter from "./routes/spotify-songs";
+import spotifyPlayerRouter from "./routes/spotify-player-routes";
 
 const main = () => {
   const app = express();
@@ -12,10 +14,13 @@ const main = () => {
     })
   );
   app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
   const PORT = accessEnv("PORT", 4000);
 
   app.use(spotifySongsRouter);
+
+  app.use(spotifyPlayerRouter);
 
   setupSwagger(app);
 
