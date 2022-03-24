@@ -3,8 +3,9 @@ import { Autocomplete, Button, NumberInput, Popover, ScrollArea, Text, Tooltip, 
 import musicGenres from '../musicGenres.json'
 import { useHistory } from 'react-router';
 import { Trash } from 'tabler-icons-react';
-import { useFirebaseContext } from '../contexts/FireBaseContext';
+import { useFirebaseContext } from '../contexts/FireBaseContextProvider';
 import { useStateContext } from '../contexts/StateContextProvider';
+import { useTranslation } from 'react-i18next'
 
 const CourseView = () => {
 
@@ -15,6 +16,8 @@ const CourseView = () => {
     const [open, setOpen] = useState(false)
     const [modalOpen, setModalOpen] = useState(false)
     const disabled = false
+
+    const { t } = useTranslation()
 
 
     useEffect(() => {
@@ -29,13 +32,13 @@ const CourseView = () => {
                 transition={'rotate-left'}
                 centered
                 opened={modalOpen}
-                onClose={() => setModalOpen(false)} title='Are you sure you want to delete this course?'>
+                onClose={() => setModalOpen(false)} title={t('course.shouldDeleteCourse')}>
                 <Group>
-                    <Button color={'red'} >yes</Button>
+                    <Button color={'red'} >{t("course.yes")}</Button>
                     <Button
                         data-autoFocus
                         onClick={() => setModalOpen(false)}>
-                        No
+                        {t("course.no")}
                     </Button>
                 </Group>
             </Modal>
@@ -58,50 +61,51 @@ const CourseView = () => {
                                 position='bottom'
                                 placement='start'
                                 wrapLines
-                                label="can't create a new playlist if there is one incomplete"
+                                label={t("course.playlistAddBlocked")}
                             >
                                 <Button
                                     disabled={disabled}
                                     variant='outline'
                                     onClick={() => setOpen((o) => !o)}
-                                >add a playlist</Button>
+                                >{t('course.playlistAdd')}</Button>
                             </Tooltip>}
                         position="bottom"
                     >
                         <NumberInput
                             value={daysAmount}
                             onChange={(e) => setDaysAmount(e ?? 10)}
-                            label="how long do you want your next playlist?"
-                            description="Number of songs/days. minimum is 10, maximum is 30"
+                            label={t("course.playlistLengthQuestion")}
+                            description={t("course.playlistLengthInfo")}
                             max={30}
                             min={10}
                         />
                         <Autocomplete
-                            label="music genre"
-                            description='we can try to adjust playlist to your music genre prefenrence'
-                            placeholder='optional'
+                            label={t("course.genre")}
+                            description={t('course.genreInfo')}
+                            placeholder={t('course.optional')}
                             limit={musicGenres.length}
                             data={musicGenres}
                             styles={{ dropdown: { overflowY: 'scroll', maxHeight: '20vh' } }}
                         />
                         <Button
-                            //TODO: put real values her
-                            onClick={() => { createPlaylist('NL', 'jjaaccekk@gmail.com', 10) }}>create</Button>
+                            mt={6}
+                            //TODO: put real values here
+                            onClick={() => { createPlaylist('NL', 'jjaaccekk@gmail.com', 10) }}>{t("course.create")}</Button>
                     </Popover>
                 </Group>
                 <Group>
-                    <Text>0 words learned</Text>
+                    <Text>0 {t("course.wordsLearned")}</Text>
                     <Button
                         color={"violet"}
                         onClick={() => setModalOpen(true)}
                         rightIcon={<Trash />}
                     >
-                        Delete course
+                        {t("course.delete")}
                     </Button>
                 </Group>
             </Group>
-            <Text>your playlists:</Text>
-            <ScrollArea style={{ height: '50vh' }}>
+            <Text>{t("course.playlists")}</Text>
+            <ScrollArea mt={6} style={{ height: '50vh' }}>
                 <SimpleGrid breakpoints={[
                     { minWidth: 200, cols: 1, spacing: 'md' },
                     { minWidth: 450, cols: 2, spacing: 'sm' },

@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Space, Button, ScrollArea, Text, Group, Avatar, Title, List, Paper, Grid, Modal } from '@mantine/core';
 import { BrandYoutube, BrandSpotify, CalendarEvent, Trash } from 'tabler-icons-react'
 import { useHistory } from 'react-router';
-import { useStateContext } from '../contexts/StateContextProvider';
 import SpotifyLogin from './SpotifyLogin';
-import { useFirebaseContext } from '../contexts/FireBaseContext';
+import { useFirebaseContext } from '../contexts/FireBaseContextProvider';
+import { useAuthContext } from '../contexts/AuthContextProvider';
+import { useTranslation } from 'react-i18next'
 
 const Playlist = () => {
-    const { accessToken } = useStateContext()
+    const { accessToken } = useAuthContext()
     const { fetchSinglePlaylist } = useFirebaseContext()
     const [modalOpen, setModalOpen] = useState(false)
     const [playlist, setPlaylist] = useState<any>()
+    const { t } = useTranslation()
 
     useEffect(() => {
         fetchSinglePlaylist('jjaaccekk@gmail.comNL8').then(
@@ -27,13 +29,13 @@ const Playlist = () => {
                 transition={'rotate-left'}
                 centered
                 opened={modalOpen}
-                onClose={() => setModalOpen(false)} title='Are you sure you want to delete this playlist?'>
+                onClose={() => setModalOpen(false)} title={t("playlist.deleteShould")}>
                 <Group>
-                    <Button color={'red'} >yes</Button>
+                    <Button color={'red'} >{t("playlist.yes")}</Button>
                     <Button
                         data-autoFocus
                         onClick={() => setModalOpen(false)}>
-                        No
+                        {t("playlist.no")}
                     </Button>
                 </Group>
             </Modal>
@@ -42,9 +44,9 @@ const Playlist = () => {
                     {playlist?.id ?? 'Playlist 1'}
                 </Title>
                 <Group>
-                    <Text>{playlist?.completionPercentage ?? '0%'} completion</Text>
+                    <Text>{playlist?.completionPercentage ?? '0'}% {t("playlist.completion")}</Text>
                     <Button color={"violet"} onClick={() => setModalOpen(true)} rightIcon={<Trash />}>
-                        Delete playlist
+                        {t("playlist.deletePlaylist")}
                     </Button>
                 </Group>
             </Group>
@@ -65,7 +67,8 @@ const Playlist = () => {
                     {accessToken ?
                         <Button
                             leftIcon={<BrandSpotify />}
-                            style={{ width: '-webkit-fill-available', height: '8vh' }} color={'green'}>Play on Spotify</Button> :
+                            style={{ width: '-webkit-fill-available', height: '8vh' }}
+                            color={'green'}>{t("playlist.playOnSpotify")}</Button> :
                         <SpotifyLogin />
                     }
                     <Space h="xs" />
@@ -76,7 +79,7 @@ const Playlist = () => {
                         rel="noopener noreferrer"
                         href={playlist?.youtubeLink ?? "https://www.youtube.com/watch_videos?video_ids=50VWOBi0VFs,7J_qcttfnJA&title=english1"}
                         style={{ width: '-webkit-fill-available', height: '8vh' }}
-                        color={'red'}>Play on Youtue</Button>
+                        color={'red'}>{t("playlist.playOnYoutue")}</Button>
                     <Space h="xs" />
                     <Button
                         leftIcon={<CalendarEvent />}
@@ -84,7 +87,7 @@ const Playlist = () => {
                         target='_blank'
                         rel='noopener noreferrer'
                         href='https://calendar.google.com/calendar/event?action=TEMPLATE&dates=20211001/20211002&text=Time+for+translations&details=Description%0Adescription%0A+%0Adecription+description&location=https://google.com&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D10'
-                    >set up a reminder for translations</Button>
+                    >{t("playlist.translationsReminder")}</Button>
                     <Space h="xs" />
                     <Button
                         leftIcon={<CalendarEvent />}
@@ -92,7 +95,7 @@ const Playlist = () => {
                         target='_blank'
                         rel='noopener noreferrer'
                         href='https://calendar.google.com/calendar/event?action=TEMPLATE&dates=20211001/20211002&text=Time+for+translations&details=Description%0Adescription%0A+%0Adecription+description&location=https://google.com&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D10'
-                    >set up a reminder for listening</Button>
+                    >{t("playlist.listeningReminder")}</Button>
                     {/* <button onClick={() => spotifyApi.createPlaylist('test playlist')}> add spotify playlist</button> */}
                 </Grid.Col>
             </Grid>
@@ -104,8 +107,9 @@ const Playlist = () => {
 export default Playlist
 
 const SongListElement = ({ song }: { song?: any }) => {
-
+    const { t } = useTranslation()
     const history = useHistory()
+
     return (
         <List.Item >
             <Paper p='sm' style={{ cursor: 'pointer' }} onClick={() => history.push(`/song?songId${song.youtubeId ?? ''}`)}>
@@ -120,7 +124,7 @@ const SongListElement = ({ song }: { song?: any }) => {
                             </Text>
                         </div>
                     </Group>
-                    <Text style={{ paddingRight: '10px' }}>complete</Text>
+                    <Text style={{ paddingRight: '10px' }}>{t("playlist.complete")}</Text>
                 </Group>
             </Paper>
         </List.Item>)

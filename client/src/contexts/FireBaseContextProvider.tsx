@@ -20,6 +20,7 @@ const app = initializeApp(firebaseConfig)
 const auth = getAuth()
 const db = getFirestore()
 const playlistsRef = collection(db, 'playlists')
+const usersRef = collection(db, 'usersData')
 
 const FirebaseContext = createContext<any>('');
 
@@ -57,7 +58,10 @@ export const FirebaseContextProvider = ({ children }: any) => {
             value={{
                 playlists,
                 fetchPlaylists,
-                fetchSinglePlaylist
+                fetchSinglePlaylist,
+                auth,
+                db,
+                usersRef
             }}
         >
             {children}

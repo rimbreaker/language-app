@@ -1,23 +1,27 @@
 import React, { useEffect, useState } from 'react'
-import { ActionIcon, Grid, ScrollArea, MediaQuery, AspectRatio, Checkbox, Group, Button, Space, Title } from '@mantine/core'
+import { ActionIcon, Grid, ScrollArea, MediaQuery, AspectRatio, Checkbox, Space, Title } from '@mantine/core'
 import Translator from './Translator'
 import SpotifyLogin from './SpotifyLogin'
 import SpotifyPlayer from './SpotifyPlayer'
-import { useStateContext } from '../contexts/StateContextProvider'
 import playingTrack from './mockSong.json'
 import axios from 'axios'
 import LyricNotePad from './LyricNotePad'
 import { ArrowBack } from 'tabler-icons-react'
+import { useAuthContext } from '../contexts/AuthContextProvider'
+import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router'
 
 const SongView = () => {
 
+    const { t } = useTranslation()
     const [translatorInput, setTranslatorInput] = useState('')
 
     const [ytId, setYtId] = useState('')
     const [lyrics, setLyrics] = useState('')
 
-    const { accessToken } = useStateContext()
+    const { accessToken } = useAuthContext()
 
+    const history = useHistory()
 
     useEffect(() => {
         if (!playingTrack) return
@@ -49,8 +53,10 @@ const SongView = () => {
         <>
             <ActionIcon
                 component='a'
-                href="/playlist"
-            > <ArrowBack /></ActionIcon>
+                onClick={() => history.push('/playlist')}
+            >
+                <ArrowBack />
+            </ActionIcon>
             <Grid grow  >
                 <Grid.Col span={8}>
                     <Title align='center' >
@@ -67,11 +73,9 @@ const SongView = () => {
                             <Space h='xs' />
                             {accessToken
                                 ?
-                                <SpotifyPlayer accessToken={accessToken} />
+                                <SpotifyPlayer />
                                 :
-
                                 <SpotifyLogin />
-
                             }
                             <Space h='xs' />
                             <AspectRatio ratio={16 / 9}>
@@ -84,8 +88,7 @@ const SongView = () => {
                                 />
                             </AspectRatio>
                             <Space h='xs' />
-                            <Checkbox label="mark song as translated" styles={{
-
+                            <Checkbox label={t("song.markReady")} styles={{
                                 input: { backgroundColor: 'aliceBlue' },
                             }} />
                         </>

@@ -1,61 +1,86 @@
-import { ActionIcon, Avatar, Burger, Button, Group, Header, MediaQuery, Popover, Text, Title, useMantineTheme } from '@mantine/core'
 import React, { useState } from 'react'
+import { ActionIcon, Avatar, Burger, Button, Group, Header, MediaQuery, Modal, Popover, Title, useMantineTheme } from '@mantine/core'
 import { useHistory } from 'react-router'
 import { useStateContext } from '../contexts/StateContextProvider'
 import LazyFlag from './LazyLoadFlag'
+import SpotifyLogin from './SpotifyLogin'
+import { BrandGoogle } from 'tabler-icons-react'
+import { useAuthContext } from '../contexts/AuthContextProvider'
+import { useTranslation } from 'react-i18next'
 
 const HeaderMain = () => {
 
     const { navbarOpen, setNavbarOpen } = useStateContext()
+    const { googleLogin, isLoggedIn, logout, currentUser } = useAuthContext()
 
     const [profilePopoverOpen, setProfilePopoverOpen] = useState(false)
 
     const theme = useMantineTheme()
 
-    const { loggedIn } = useStateContext()
     const history = useHistory()
+    const [modalOpen, setModalOpen] = useState(false)
+
+    const { t, i18n } = useTranslation()
 
     return (
-        <Header height={70} p="md">
-            <div style={{ display: 'flex', alignItems: 'center', height: '100%', justifyContent: 'space-between' }}>
-                <div>
-                    {loggedIn &&
-                        <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
-                            <Burger
-                                opened={navbarOpen}
-                                onClick={() => setNavbarOpen((o: boolean) => !o)}
-                                size="sm"
-                                color={theme.colors.gray[6]}
-                                mr="xl"
-                            />
-                        </MediaQuery>
-                    }
-                    <Title style={{ cursor: 'pointer' }} onClick={() => history.push('/')}>
-                        Language app
-                    </Title>
-                </div>
-                <Group spacing={'xs'} >
-                    <ActionIcon>
-                        <LazyFlag countryCode='GB' />
-                    </ActionIcon>
-                    {loggedIn ?
-                        <Popover
-                            withArrow
-                            position='bottom'
-                            opened={profilePopoverOpen}
-                            onClose={() => setProfilePopoverOpen(false)}
-                            target={
-                                <Avatar style={{ cursor: 'pointer' }} onClick={() => setProfilePopoverOpen((o) => !o)} radius={'xl'} />
-                            }
-                        >
-                            <Button>logout</Button>
-                        </Popover> :
-                        <Button>login</Button>
-                    }
+        <>
+            <Modal
+                transition={'pop'}
+                opened={modalOpen}
+                onClose={() => setModalOpen(false)}
+                title={t('header.login')}>
+                <Group position='apart'>
+                    <SpotifyLogin isMainLogin />
+                    <Button
+                        leftIcon={<BrandGoogle />}
+                        style={{ height: '8vh', background: 'black' }}
+                        color={'black'}
+                        onClick={() => { setModalOpen(false); googleLogin() }}>
+                        {t('header.googleLogin')}
+                    </Button>
                 </Group>
-            </div>
+            </Modal>
+            <Header height={70} p="md">
+                <div style={{ display: 'flex', alignItems: 'center', height: '100%', justifyContent: 'space-between' }}>
+                    <div>
+                        {isLoggedIn &&
+                            <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+                                <Burger
+                                    opened={navbarOpen}
+                                    onClick={() => setNavbarOpen((o: boolean) => !o)}
+                                    size="sm"
+                                    color={theme.colors.gray[6]}
+                                    mr="xl"
+                                />
+                            </MediaQuery>
+                        }
+                        <Title style={{ cursor: 'pointer' }} onClick={() => history.push('/')}>
+                            {t('header.title')}
+                        </Title>
+                    </div>
+                    <Group spacing={'xs'} >
+                        <ActionIcon onClick={() => i18n.changeLanguage(i18n.language === 'pl' ? 'en' : 'pl')}>
+                            <LazyFlag countryCode={i18n.language === 'en' ? 'GB' : 'PL'} />
+                        </ActionIcon>
+                        {isLoggedIn ?
+                            <Popover
+                                withArrow
+                                position='bottom'
+                                opened={profilePopoverOpen}
+                                onClose={() => setProfilePopoverOpen(false)}
+                                target={
+                                    <Avatar src={currentUser.photoURL} style={{ cursor: 'pointer' }} onClick={() => setProfilePopoverOpen((o) => !o)} radius={'xl'} />
+                                }
+                            >
+                                <Button onClick={logout}>{t('header.logout')}</Button>
+                            </Popover> :
+                            <Button onClick={() => setModalOpen(true)}>{t('header.login')}</Button>
+                        }
+                    </Group>
+                </div>
 
-        </Header>)
+            </Header>
+        </>)
 }
 
 export default HeaderMain

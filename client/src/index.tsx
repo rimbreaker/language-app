@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
@@ -7,21 +7,27 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { MantineProvider } from '@mantine/core'
 import { StateContextProvider } from './contexts/StateContextProvider';
-import { FirebaseContextProvider } from './contexts/FireBaseContext';
+import { FirebaseContextProvider } from './contexts/FireBaseContextProvider';
+import { AuthContextProvider } from './contexts/AuthContextProvider';
+import './i18n';
 
 ReactDOM.render(
-  <React.StrictMode>
+  <Suspense fallback={<div>Loading ...</div>}>
     <FirebaseContextProvider>
       <StateContextProvider>
-        <MantineProvider theme={{ colorScheme: 'dark' }} >
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </MantineProvider>
+        <AuthContextProvider>
+          <MantineProvider theme={{ colorScheme: 'dark', fontFamily: "revert" }} >
+            <BrowserRouter>
+              <React.StrictMode>
+                <App />
+              </React.StrictMode>
+            </BrowserRouter>
+          </MantineProvider>
+        </AuthContextProvider>
       </StateContextProvider>
     </FirebaseContextProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
+  </Suspense>
+  , document.getElementById('root')
 );
 
 // If you want your app to work offline and load faster, you can change

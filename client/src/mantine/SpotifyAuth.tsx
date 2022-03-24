@@ -1,15 +1,14 @@
 import axios from 'axios'
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
-import { useStateContext } from '../contexts/StateContextProvider'
+import { useAuthContext } from '../contexts/AuthContextProvider'
 
 
 const code = new URLSearchParams(window.location.search).get("code")
 
 const Auth = () => {
 
-    const { accessToken, setAccessToken, setRefreshToken, setExpiresIn } = useStateContext()
-
+    const { spotifyLogin, accessToken, setAccessToken, setRefreshToken, setExpiresIn } = useAuthContext()
     const history = useHistory()
 
     useEffect(() => {
@@ -22,14 +21,14 @@ const Auth = () => {
                     setAccessToken(res.data.accessToken)
                     setRefreshToken(res.data.refreshToken)
                     setExpiresIn(res.data.expiresIn)
-
+                    spotifyLogin(res.data.accessToken)
                 })
                 .then(() => {
                     const locationToPush = localStorage.getItem('preAuthLoc') ?? '/'
                     localStorage.removeItem('preAuthLoc')
                     history.push(locationToPush)
                 })
-                .catch(() => {
+                .catch((e) => {
                     window.location = ("/" as any)
                 })
         }

@@ -4,6 +4,7 @@ import availableLangs from '../encoding.json'
 import { useStateContext } from '../contexts/StateContextProvider'
 import LazyFlag from './LazyLoadFlag'
 import { useHistory } from 'react-router'
+import { useTranslation } from 'react-i18next'
 
 
 const NavbarMain = () => {
@@ -15,6 +16,7 @@ const NavbarMain = () => {
     const { navbarOpen } = useStateContext()
 
     const history = useHistory()
+    const { t } = useTranslation()
     return (
         <Navbar width={{ sm: 80, lg: 150 }} p="md" hiddenBreakpoint={"sm"} hidden={!navbarOpen} >
             <Navbar.Section
@@ -41,17 +43,17 @@ const NavbarMain = () => {
                     withArrow
                     opened={newCourseOpen}
                     target={
-                        <Button onClick={() => setNewCourseOpen((o => !o))} >add new course</Button>
+                        <Button onClick={() => setNewCourseOpen((o => !o))} >{t('navbar.newCourse')}</Button>
                     }
                     position="bottom"
                 >
                     <Autocomplete
-                        label="available languages"
-                        description="select language to learn"
+                        label={t("navbar.availableLangs")}
+                        description={t("navbar.avLangDes")}
                         value={newCourseLanguage}
                         onChange={setNewCourseLanguage}
                         error={newCourseLanguage && !Object.values(availableLangs).map(({ name }: any) => name).includes(newCourseLanguage)}
-                        placeholder='language'
+                        placeholder={t('navbar.language')}
                         limit={Object.keys(availableLangs).length}
                         style={{ maxHeight: '30vh' }}
                         styles={{ dropdown: { overflowY: 'scroll', maxHeight: '30vh' } }}
