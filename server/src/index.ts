@@ -5,6 +5,7 @@ import accessEnv from "./util/accessEnv";
 import setupSwagger from "./util/setupSwagger";
 import spotifySongsRouter from "./routes/spotify-songs";
 import spotifyPlayerRouter from "./routes/spotify-player-routes";
+import translateRouter from "./routes/translationRoutes";
 
 const main = () => {
   const app = express();
@@ -21,6 +22,8 @@ const main = () => {
   app.use(spotifySongsRouter);
 
   app.use(spotifyPlayerRouter);
+
+  app.use(translateRouter);
 
   setupSwagger(app);
 

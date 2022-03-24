@@ -1,19 +1,20 @@
 import axios from "axios";
 import express from "express";
 import SpotifyWebApi from "spotify-web-api-node";
+import { getSongsFromNextWordsToLearn } from "../controllers/spotify-songs";
 import accessEnv from "../util/accessEnv";
 const lyricsFinder = require("lyrics-finder");
 
 const router = express.Router();
 
-const REDIRECT_URI = accessEnv("REDIRECT_URI");
 const CLIENT_ID = accessEnv("CLIENT_ID");
 const CLIENT_SECRET = accessEnv("CLIENT_SECRET");
 
 router.post("/refresh", (req, res) => {
+  const redirectUri = req.body.redirect;
   const refreshToken = req.body.refreshToken;
   const spotifyApi = new SpotifyWebApi({
-    redirectUri: REDIRECT_URI,
+    redirectUri: redirectUri,
     clientId: CLIENT_ID,
     clientSecret: CLIENT_SECRET,
     refreshToken,
@@ -35,7 +36,6 @@ router.post("/refresh", (req, res) => {
 
 router.get("/search", (_req, res) => {
   const spotifyApi = new SpotifyWebApi({
-    redirectUri: REDIRECT_URI,
     clientId: CLIENT_ID,
     clientSecret: CLIENT_SECRET,
   });
@@ -52,10 +52,13 @@ router.get("/search", (_req, res) => {
   });
 });
 
+router.get("/createplaylist/:lang", getSongsFromNextWordsToLearn);
+
 router.post("/login", (req, res) => {
   const code = req.body.code;
+  const redirectUri = req.body.redirect;
   const spotifyApi = new SpotifyWebApi({
-    redirectUri: REDIRECT_URI,
+    redirectUri: redirectUri,
     clientId: CLIENT_ID,
     clientSecret: CLIENT_SECRET,
   });

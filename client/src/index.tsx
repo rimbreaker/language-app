@@ -5,12 +5,18 @@ import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
+import { MantineProvider } from '@mantine/core'
+import { StateContextProvider } from './contexts/StateContextProvider';
 
 ReactDOM.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <StateContextProvider>
+      <MantineProvider theme={{ colorScheme: 'dark' }} >
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </MantineProvider>
+    </StateContextProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './App.css';
 import { getFirestore, collection, setDoc, doc, deleteDoc, onSnapshot, query, where, orderBy, limit, getDoc, getDocFromCache, DocumentData, } from 'firebase/firestore'
 import { initializePerformance } from 'firebase/performance'
 import { initializeAnalytics } from 'firebase/analytics'
@@ -13,6 +12,15 @@ import { Switch, Route, withRouter, Redirect, RouteComponentProps } from 'react-
 import { useHistory } from 'react-router';
 import Player from './spotifyWebPlayer/App'
 import config from './config.env.json'
+import LandingPage from './mantine/Landing';
+import { AppShell, Container, Burger, Header, MediaQuery, Group, Text, useMantineTheme, Button, Popover, Avatar } from '@mantine/core';
+import SongView from './mantine/SongView';
+import CourseView from './mantine/CourseView';
+import Playlist from './mantine/Playlist';
+import NavbarMain from './mantine/NavbarMain';
+import HeaderMain from './mantine/HeaderMain';
+import { useStateContext } from './contexts/StateContextProvider';
+import Auth from './mantine/Auth';
 
 const firebaseConfig = {
   apiKey: config.apiKey,
@@ -34,10 +42,15 @@ initializeAnalytics(app)
 
 function App() {
 
+  const { loggedIn } = useStateContext()
+
+  const [opened, setOpened] = useState(false)
+  const theme = useMantineTheme()
+
   //const authUnsub = onAuthStateChanged(auth, (user) => console.log(user))
   const [user] = useAuthState(auth)
 
-  const q = query(coursesRef, where("userData", "==", doc(db, 'usersData/', user?.email || 'lol')), limit(10))
+  //const q = query(coursesRef, where("userData", "==", doc(db, 'usersData/', user?.email || 'lol')), limit(10))
 
   // const userCoursesUnsub = user ? onSnapshot(q, () => console.log("change in courses")) : () => null
 
@@ -57,6 +70,7 @@ function App() {
   }
   const [isOver, setIsOver] = useState(false)
 
+
   const selectionHandler = () => {
     if (isOver) {
       const selection = document.getSelection()
@@ -66,18 +80,35 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        {user ? <button onClick={() => logout()}>logout</button> : <button onClick={() => login()}>login</button>}
-        <p onMouseUp={selectionHandler} onMouseEnter={() => setIsOver(true)} onMouseLeave={() => setIsOver(false)} >tekst lorem ipsum dłuższy tekst</p>
-        <Switch>
-          <Route exact path="/player" component={Player} />
-          <Route exact path='/course/:courseLang' component={CoursePageByCourseLang} />
-          <Route exact path='/' component={HomePage} />
-          <Redirect to='/' />
-        </Switch>
-
-      </header>
+    <div >
+      {/* //   <header className="App-header">
+    //     {user ? <button onClick={() => logout()}>logout</button> : <button onClick={() => login()}>login</button>}
+    //     <p onMouseUp={selectionHandler} onMouseEnter={() => setIsOver(true)} onMouseLeave={() => setIsOver(false)} >tekst lorem ipsum dłuższy tekst</p> */}
+      <AppShell
+        style={{ color: 'aliceblue', backgroundColor: theme.colors.dark[4] }}
+        navbarOffsetBreakpoint="sm"
+        fixed
+        header={
+          <HeaderMain />
+        }
+        navbar={loggedIn &&
+          <NavbarMain />
+        }
+      >
+        <Container >
+          <Switch>
+            <Route exact path="/player" component={Player} />
+            <Route exact path='/auth' component={Auth} />
+            <Route exact path='/song' component={SongView} />
+            <Route exact path='/course/:courseLang' component={CoursePageByCourseLang} />
+            <Route exact path='/courseview' component={CourseView} />
+            <Route exact path='/firebaseStuff' component={HomePage} />
+            <Route exact path='/playlist' component={Playlist} />
+            <Route exact path='/' component={LandingPage} />
+            <Redirect to='/' />
+          </Switch>
+        </Container>
+      </AppShell >
     </div>
   );
 }
@@ -109,6 +140,7 @@ const HomePage = () => {
       alert('you already ahve a course in that language')
     }
   }
+
   const history = useHistory()
   return (<>
     {user && <>
