@@ -29,7 +29,9 @@ const CoursePage = ({ courseLang, auth, db }: { courseLang: string, auth: any, d
         console.log(courseToSave)
 
         if (!(courseToSave as any).learnedWords) {
-            setDoc(doc(db, 'learnedWords', user?.email + courseLang), { language: courseLang, activeCourse: doc(coursesRef, user?.email + courseLang) })
+            setDoc(doc(db, 'learnedWords', user?.email + courseLang), {
+                language: courseLang, activeCourse: doc(coursesRef, user?.email + courseLang)
+            })
             updateDoc(doc(coursesRef, user?.email + courseLang), { learnedWords: doc(db, 'learnedWords', user?.email + courseLang) })
 
             setCourse({ ...courseToSave.data(), learnedWords: doc(db, 'learnedWords', user?.email + courseLang) })

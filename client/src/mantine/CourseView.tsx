@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Autocomplete, Button, NumberInput, Popover, ScrollArea, Text, Tooltip, SimpleGrid, Group, Title, Modal } from '@mantine/core';
 import musicGenres from '../musicGenres.json'
 import { useHistory } from 'react-router';
 import { Trash } from 'tabler-icons-react';
+import { useFirebaseContext } from '../contexts/FireBaseContext';
+import { useStateContext } from '../contexts/StateContextProvider';
 
 const CourseView = () => {
+
+    const { playlists, fetchPlaylists } = useFirebaseContext()
+    const { createPlaylist } = useStateContext()
 
     const [daysAmount, setDaysAmount] = useState(10)
     const [open, setOpen] = useState(false)
     const [modalOpen, setModalOpen] = useState(false)
     const disabled = false
+
+
+    useEffect(() => {
+        console.log(playlists)
+        //TODO: put real values here
+        fetchPlaylists('jjaaccekk@gmail.comNL')
+    }, [])
 
     const history = useHistory()
     return (
@@ -73,6 +85,9 @@ const CourseView = () => {
                             data={musicGenres}
                             styles={{ dropdown: { overflowY: 'scroll', maxHeight: '20vh' } }}
                         />
+                        <Button
+                            //TODO: put real values her
+                            onClick={() => { createPlaylist('NL', 'jjaaccekk@gmail.com', 10) }}>create</Button>
                     </Popover>
                 </Group>
                 <Group>
@@ -94,6 +109,12 @@ const CourseView = () => {
                     { minWidth: 650, cols: 3, spacing: 'sm' },
                     { minWidth: 980, cols: 4, spacing: 'md' },
                 ]}>
+                    {(playlists ?? []).map((playlist: any) => (
+                        <Button
+                            color={'yellow'}
+                            onClick={() => history.push(`/playlist?playlistId=${playlist.id}`)}
+                        >{playlist.id}</Button>
+                    ))}
                     <Button loading color={'yellow'} >list2</Button>
                     <Button onClick={() => history.push('/playlist')} color={'green'} >list1</Button>
                 </SimpleGrid>

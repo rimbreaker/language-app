@@ -7,16 +7,19 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { MantineProvider } from '@mantine/core'
 import { StateContextProvider } from './contexts/StateContextProvider';
+import { FirebaseContextProvider } from './contexts/FireBaseContext';
 
 ReactDOM.render(
   <React.StrictMode>
-    <StateContextProvider>
-      <MantineProvider theme={{ colorScheme: 'dark' }} >
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </MantineProvider>
-    </StateContextProvider>
+    <FirebaseContextProvider>
+      <StateContextProvider>
+        <MantineProvider theme={{ colorScheme: 'dark' }} >
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </MantineProvider>
+      </StateContextProvider>
+    </FirebaseContextProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

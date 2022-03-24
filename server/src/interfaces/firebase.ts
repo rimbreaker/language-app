@@ -19,4 +19,4 @@ const Playlists = collection(db, "playlists");
 const Songs = collection(db, "songs");
 const PSC = collection(db, "playlist-song-connection");
 
-module.exports = { Words, Playlists, Songs, PSC };
+module.exports = { Words, Playlists, Songs, PSC, db };

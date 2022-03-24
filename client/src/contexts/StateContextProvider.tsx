@@ -43,6 +43,13 @@ export const StateContextProvider = ({ children }: any) => {
         )
     }
 
+    const createPlaylist = async (language: string, email: string, length?: number, genre?: string) => {
+        let requestUrl = `http://localhost:4000/createplaylist/${language}?email=${email}`
+        if (length) requestUrl += `&length${length}`
+        if (genre) requestUrl += `&genre=${genre}`
+        axios.get(requestUrl)
+    }
+
     return (
         <StateContext.Provider
             value={{
@@ -59,7 +66,8 @@ export const StateContextProvider = ({ children }: any) => {
                 preAuthLocation,
                 setPreAuthLocation,
                 fetchTranslation,
-                translation
+                translation,
+                createPlaylist
             }}
         >
             {children}

@@ -4,8 +4,8 @@ import fs from "fs";
 import path from "path";
 import { searchSong } from "../interfaces/spotify";
 import SpotifyWebApi from "spotify-web-api-node";
-const { Words } = require("../interfaces/firebase");
-import { getDoc, doc } from "firebase/firestore";
+const { Words, Playlists, db } = require("../interfaces/firebase");
+import { getDoc, doc, getDocs, where, query, setDoc } from "firebase/firestore";
 import accessEnv from "../util/accessEnv";
 import axios from "axios";
 
@@ -72,6 +72,20 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
     .filter((word: string) => !learnedWordsArray.includes(word))
     .slice(0, playlistLength);
 
+  const playlistsOfTheCourse = (
+    await getDocs(
+      query(
+        Playlists,
+        where("userMail", "==", email),
+        where("language", "==", language)
+      )
+    )
+  ).docs.map((doc) => ({ id: doc.id, ...(doc.data() as any) }));
+
+  const usedSongs = playlistsOfTheCourse
+    .map((playlist) => playlist.songs)
+    .flat();
+
   spotifyApi.clientCredentialsGrant().then(async (data) => {
     spotifyApi.setAccessToken(data.body.access_token);
 
@@ -87,38 +101,77 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
               (res as any).body.tracks.items[0].id ?? ""
             );
             const track = (res as any).body.tracks.items[0];
+            const title = track.name;
             const artist = track.artists.reduce((prev: any, curr: any) => {
               return prev + " " + curr.name;
             }, "");
+
+            const songWasInUse = () =>
+              usedSongs
+                .map((song) => ({ title: song.title, artist: song.artist }))
+                .includes({ title, artist });
+
+            const songNotSpeachyEnough = track.speechiness < 0.01;
+
+            if (songWasInUse() || songNotSpeachyEnough) {
+              console.log("song wrong!! fetching another one");
+            }
+
             return {
-              title: track.name,
-              artist: artist,
-              albumUrl: track.album.images.reduce(
-                (smallest: any, image: any) => {
+              title: String(title),
+              artist: String(artist),
+              albumUrl: String(
+                track.album.images.reduce((smallest: any, image: any) => {
                   if (image?.height < smallest?.height) return image;
                   return smallest;
-                },
-                track.album.images[0]
-              ).url,
-              uri: track.uri,
+                }, track.album.images[0]).url
+              ),
+              uri: String(track.uri),
               speechiness: textFeatures.body.speechiness,
               wordSearched: word,
-              youtubeId: await getYoutubeId(artist, track.name),
+              youtubeId: await getYoutubeId(artist, title),
               language: language,
-              genre: genre,
+              genre: String(genre),
             };
           })
       )
     );
+    const playlistIndex = playlistsOfTheCourse.length + 1;
 
-    //if songs werent already used
-    //if have proper language in title
-    //if have wordiness index enough
-    //save new playlist
-    //save each song
-    //save each PSC
+    const youtubeLink =
+      foundSongs.reduce(
+        (prev, curr) => prev + curr.youtubeId + ",",
+        "https://www.youtube.com/watch_videos?video_ids="
+      ) + `&title=${language}${playlistIndex}`;
 
-    res.json(foundSongs);
+    const playlistId = email + language + playlistIndex;
+
+    const userMail = email?.toString() || "";
+
+    const activeCourse = playlistId.slice(0, -playlistIndex.toString().length);
+
+    setDoc(doc(db, "playlists", playlistId), {
+      activeCourse,
+      songs: foundSongs,
+      completionPercentage: 0,
+      language: language,
+      spotifyLink: "",
+      userMail,
+      youtubeLink: youtubeLink,
+    });
+
+    res.json({
+      id: email + language + playlistIndex,
+      activeCourse: email + language,
+      songs: foundSongs,
+      completionPercentage: 0,
+      language: language,
+      spotifyLink: "",
+      userMail: email,
+      youtubeLink: youtubeLink,
+    });
+
+    // res.json(foundSongs);
   });
 };
 
