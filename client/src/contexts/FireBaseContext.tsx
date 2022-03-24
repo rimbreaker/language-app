@@ -40,13 +40,7 @@ export const FirebaseContextProvider = ({ children }: any) => {
         }
 
         const fetchedPlaylistDoc = await getDoc(doc(db, 'playlists', playlistName))
-
-        console.log('dupa')
-        console.log(fetchedPlaylistDoc)
-        const lul = fetchedPlaylistDoc.data()
-        console.log(lul)
-        const fetchedPlaylist = { id: fetchedPlaylistDoc.id, ...lul }
-        console.log(fetchedPlaylist)
+        const fetchedPlaylist = { id: fetchedPlaylistDoc.id, ...fetchedPlaylistDoc.data() }
         setSinglePlaylist(fetchedPlaylist)
         return fetchedPlaylist
     }

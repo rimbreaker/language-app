@@ -8,9 +8,25 @@ const { Words, Playlists, db } = require("../interfaces/firebase");
 import { getDoc, doc, getDocs, where, query, setDoc } from "firebase/firestore";
 import accessEnv from "../util/accessEnv";
 import axios from "axios";
+const lyricsFinder = require("lyrics-finder");
+const { translate } = require("bing-translate-api");
 
 const CLIENT_ID = accessEnv("CLIENT_ID");
 const CLIENT_SECRET = accessEnv("CLIENT_SECRET");
+
+type song = {
+  title: string;
+  artist: string;
+  allArtists: string;
+  albumUrl: string;
+  uri: string;
+  speechiness: number;
+  wordSearched: string;
+  youtubeId: string;
+  language: string;
+  genre: string;
+  lyrics: string;
+};
 
 const return30songs = async (req: Request, res: Response) => {
   const countryCode = req.params.countryCode;
@@ -91,56 +107,13 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
 
     const foundSongs = await Promise.all(
       wordsToUse.map((word) =>
-        spotifyApi
-          .searchTracks(genre ? `${word} genre:${genre}` : `${word}`, {
-            market: language,
-            limit: 1,
-          })
-          .then(async (res) => {
-            const textFeatures = await spotifyApi.getAudioFeaturesForTrack(
-              (res as any).body.tracks.items[0].id ?? ""
-            );
-            const track = (res as any).body.tracks.items[0];
-            const title = track.name;
-            const artist = track.artists.reduce((prev: any, curr: any) => {
-              return prev + " " + curr.name;
-            }, "");
-
-            const songWasInUse = () =>
-              usedSongs
-                .map((song) => ({ title: song.title, artist: song.artist }))
-                .includes({ title, artist });
-
-            const songNotSpeachyEnough = track.speechiness < 0.01;
-
-            if (songWasInUse() || songNotSpeachyEnough) {
-              console.log("song wrong!! fetching another one");
-            }
-
-            return {
-              title: String(title),
-              artist: String(artist),
-              albumUrl: String(
-                track.album.images.reduce((smallest: any, image: any) => {
-                  if (image?.height < smallest?.height) return image;
-                  return smallest;
-                }, track.album.images[0]).url
-              ),
-              uri: String(track.uri),
-              speechiness: textFeatures.body.speechiness,
-              wordSearched: word,
-              youtubeId: await getYoutubeId(artist, title),
-              language: language,
-              genre: String(genre),
-            };
-          })
+        getSong(spotifyApi, word, language, usedSongs, genre && String(genre))
       )
     );
     const playlistIndex = playlistsOfTheCourse.length + 1;
-
     const youtubeLink =
       foundSongs.reduce(
-        (prev, curr) => prev + curr.youtubeId + ",",
+        (prev, curr: any) => prev + curr.youtubeId + ",",
         "https://www.youtube.com/watch_videos?video_ids="
       ) + `&title=${language}${playlistIndex}`;
 
@@ -170,9 +143,128 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
       userMail: email,
       youtubeLink: youtubeLink,
     });
-
-    // res.json(foundSongs);
   });
+};
+
+const getSong = async (
+  spotifyApi: SpotifyWebApi,
+  word: string,
+  language: string,
+  usedSongs: any[],
+  genre?: string,
+  limit?: number
+) => {
+  return await spotifyApi
+    .searchTracks(genre ? `${word} genre:${genre}` : `${word}`, {
+      market: language,
+      limit: limit ?? 1,
+    })
+    .then(async (res) => {
+      const track = (res as any).body.tracks.items[0];
+      const nextTracks = (res as any).body.tracks.items.slice(1);
+
+      return await handleSong(
+        track,
+        usedSongs,
+        spotifyApi,
+        word,
+        language,
+        limit,
+        nextTracks,
+        genre
+      );
+    });
+};
+
+const handleSong = async (
+  track: any,
+  usedSongs: any[],
+  spotifyApi: SpotifyWebApi,
+  word: string,
+  language: string,
+  limit?: number,
+  nextTracks?: any,
+  genre?: string
+): Promise<song> => {
+  const title = track.name;
+  const artist = track.artists[0].name;
+  const allArtists = track.artists.reduce((prev: any, curr: any) => {
+    return prev + " " + curr.name;
+  }, "");
+
+  const songWasInUse = () => {
+    return usedSongs
+      .map((song) => ({ title: song.title, artist: song.artist }))
+      .includes({ title, artist });
+  };
+
+  const fallback = async () => {
+    if (nextTracks && nextTracks.length > 0)
+      return await handleSong(
+        nextTracks[0],
+        usedSongs,
+        spotifyApi,
+        word,
+        language,
+        limit,
+        nextTracks.slice(1)
+      );
+    return await getSong(
+      spotifyApi,
+      word,
+      language,
+      usedSongs,
+      undefined,
+      (limit ?? 0) + 10
+    );
+  };
+
+  if (songWasInUse()) {
+    console.log("song wrong!! fetching another one");
+    return await fallback();
+  }
+
+  const textFeatures = await spotifyApi.getAudioFeaturesForTrack(
+    track.id ?? ""
+  );
+
+  const songNotSpeachyEnough = textFeatures.body.speechiness < 0.01;
+
+  if (songNotSpeachyEnough) {
+    console.log("song not speachy enough!! fetching another one");
+    return await fallback();
+  }
+
+  const lyrics = await getSongLyrics(artist, title);
+
+  if (lyrics === "") {
+    console.log("no lyrics found!! fetching another one");
+    return await fallback();
+  }
+  const songLanguageCorrect = await checkSongsLanguage(lyrics, language);
+  if (!songLanguageCorrect) {
+    console.log("song in wrong language!! fetching another one");
+    return await fallback();
+  }
+
+  return {
+    title: String(title),
+    artist: String(artist),
+    allArtists: String(allArtists),
+    albumUrl: String(
+      track.album.images.reduce((smallest: any, image: any) => {
+        if (image?.height < smallest?.height) return image;
+        return smallest;
+      }, track.album.images[0]).url
+    ),
+    uri: String(track.uri),
+    speechiness: textFeatures.body.speechiness,
+    wordSearched: word,
+    youtubeId: await getYoutubeId(artist, title),
+    language: language,
+    genre: String(genre),
+    lyrics,
+  };
 };
 
 const getYoutubeId = async (artist: string, track: string) => {
@@ -186,8 +278,19 @@ const getYoutubeId = async (artist: string, track: string) => {
     0,
     firstResultIDBatch.indexOf('"')
   );
-
   return firstResultID;
+};
+
+const getSongLyrics = async (artist: string, title: string) => {
+  const lyrics = await lyricsFinder(artist, title);
+  return lyrics;
+};
+
+const checkSongsLanguage = async (lyrics: string, expectedLanguage: string) => {
+  const sampleToTranslate = decodeURI(lyrics).slice(0, 100);
+  const translation = await translate(sampleToTranslate, null, "en", false);
+  const actualLanguage = translation.language.from;
+  return actualLanguage.toLowerCase() === expectedLanguage.toLowerCase();
 };
 
 export { return30songs, getSongsFromNextWordsToLearn };

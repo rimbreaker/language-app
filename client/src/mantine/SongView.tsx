@@ -76,7 +76,7 @@ const SongView = () => {
                             <Space h='xs' />
                             <AspectRatio ratio={16 / 9}>
                                 <iframe
-                                    src={`https://www.youtube.com/embed/${ytId}`}
+                                    src={`https://www.youtube.com/embed/0PQWwzgkVBg?cc_load_policy=1`}
                                     title="YouTube video player"
                                     frameBorder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope;"

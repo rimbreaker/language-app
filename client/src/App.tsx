@@ -130,9 +130,9 @@ const HomePage = () => {
     deleteDoc(doc(db, 'activeCourses', course.id))
   }
 
-
   const createNewCourse = () => {
-    const languageEncoding = availableLangs[newCourseLanguage as keyof typeof availableLangs]
+
+    const languageEncoding = Object.entries(availableLangs as any).find(([_key, value]: any) => value.name === newCourseLanguage)?.[0]
     if (!courses?.find(course => course.language === languageEncoding)) {
       const courseName = (user?.email || 'failedUser') + languageEncoding
       setDoc(doc(db, 'activeCourses', courseName), { id: courseName, userData: doc(db, 'usersData/', user?.email || ''), percentageCompleted: 0, learnedWords: null, language: languageEncoding })
@@ -145,8 +145,8 @@ const HomePage = () => {
   return (<>
     {user && <>
       <p> select language:  <select value={newCourseLanguage} onChange={(e) => setNewCourseLanguage(e.target.value)}>
-        {Object.entries(availableLangs).map(([key]) => (
-          <option key={key} >{key}</option>
+        {Object.values(availableLangs).map(({ name }: any) => (
+          <option key={name} >{name}</option>
         ))}
       </select>
         <button onClick={() => createNewCourse()}>add course</button>
@@ -158,8 +158,6 @@ const HomePage = () => {
             {course.language} course: {course.percentageCompleted}% completed
             <button onClick={async () => {
               history.push('/course/' + course.language)
-              console.log(course, course.userData);
-              console.log((await getDocFromCache(course.userData).catch(() => getDoc(course.userData))).data())
             }}>
               open course
             </button>

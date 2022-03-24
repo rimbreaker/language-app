@@ -18,7 +18,6 @@ const CourseView = () => {
 
 
     useEffect(() => {
-        console.log(playlists)
         //TODO: put real values here
         fetchPlaylists('jjaaccekk@gmail.comNL')
     }, [])

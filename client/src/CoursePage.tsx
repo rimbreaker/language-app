@@ -26,7 +26,6 @@ const CoursePage = ({ courseLang, auth, db }: { courseLang: string, auth: any, d
     const fetchCourse = async () => {
 
         const courseToSave = await getDoc(doc(coursesRef, user?.email + courseLang))
-        console.log(courseToSave)
 
         if (!(courseToSave as any).learnedWords) {
             setDoc(doc(db, 'learnedWords', user?.email + courseLang), {

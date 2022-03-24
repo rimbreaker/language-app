@@ -50,14 +50,14 @@ const NavbarMain = () => {
                         description="select language to learn"
                         value={newCourseLanguage}
                         onChange={setNewCourseLanguage}
-                        error={newCourseLanguage && !Object.keys(availableLangs).includes(newCourseLanguage)}
+                        error={newCourseLanguage && !Object.values(availableLangs).map(({ name }: any) => name).includes(newCourseLanguage)}
                         placeholder='language'
-                        limit={Object.entries(availableLangs).length}
+                        limit={Object.keys(availableLangs).length}
                         style={{ maxHeight: '30vh' }}
                         styles={{ dropdown: { overflowY: 'scroll', maxHeight: '30vh' } }}
                         height='30vh'
-                        data={Object.entries(availableLangs).map(([key]) => (
-                            key
+                        data={Object.values(availableLangs).map(({ name }: any) => (
+                            name
                         ))} />
                 </Popover>
 
