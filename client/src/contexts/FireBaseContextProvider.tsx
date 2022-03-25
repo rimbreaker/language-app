@@ -20,6 +20,7 @@ const auth = getAuth()
 const db = getFirestore()
 const playlistsRef = collection(db, 'playlists')
 const usersRef = collection(db, 'usersData')
+const corsesRef = collection(db, 'activeCourses')
 
 const FirebaseContext = createContext<any>('');
 
@@ -28,6 +29,19 @@ export const FirebaseContextProvider = ({ children }: any) => {
     const [singlePlaylist, setSinglePlaylist] = useState<any>()
     const [currentSong, setCurrentSong] = useState<any>()
     const [translation, setTranslation] = useState<any>()
+    const [courses, setCourses] = useState<any>()
+
+    const fetchCourses = async (user: any) => {
+
+        const coursesDocs = await getDocs(query(corsesRef, where('userMail', '==', user.email)))
+        const courses = await coursesDocs.docs.map(doc => doc.data())
+        setCourses(courses)
+    }
+
+    const deleteCourse = (lang: string, user: any) => {
+        deleteDoc(doc(db, 'activeCourses', user.email + lang));
+        setCourses((prev: any) => prev.filter((course: any) => (course.language !== lang || course.userMail !== user.email)))
+    }
 
 
     const fetchSinglePlaylist = async (playlistName: string) => {
@@ -88,10 +102,27 @@ export const FirebaseContextProvider = ({ children }: any) => {
         setTranslation(undefined)
     }
 
+    const createNewCourse = async (user: any, language: any) => {
+
+        const langCode = language.encode
+
+        const newCourse = {
+            courseName: user.email + language,
+            language: langCode,
+            userMail: user.email,
+            wordsLearned: 0
+        }
+        await setDoc(doc(db, 'activeCourses', user.email + langCode), newCourse)
+        setCourses((prev: any[]) => [...prev, newCourse])
+    }
+
 
     return (
         <FirebaseContext.Provider
             value={{
+                deleteCourse,
+                fetchCourses,
+                courses,
                 setPlaylists,
                 playlists,
                 fetchPlaylists,
@@ -104,7 +135,8 @@ export const FirebaseContextProvider = ({ children }: any) => {
                 setCurrentSong,
                 fetchCurrentSong,
                 markSongAsTranslated,
-                unmarkTranslation
+                unmarkTranslation,
+                createNewCourse
             }}
         >
             {children}

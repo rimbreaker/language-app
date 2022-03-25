@@ -69,7 +69,8 @@ const Playlist = () => {
             </Modal>
             <Group position='apart'>
                 <Title style={{ textTransform: "capitalize" }} >
-                    {t(`language.${playlist?.language}`) + ' ' + playlist?.index ?? 'Playlist 1'}
+                    Playlist {t(`language.${playlist?.language}`) + ' ' + playlist?.index ?? 'Playlist 1'}
+                    {/* TODO: translate */}
                 </Title>
                 <Group>
                     <Text>{calculateCompletion() ?? '0'}% {t("playlist.completion")}</Text>

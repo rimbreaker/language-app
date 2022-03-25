@@ -21,7 +21,7 @@
         "yes": "yes",
         "no": "No",
         "playlistAdd": "add a playlist",
-        "playlistAddBlocked": "can't create a new playlist if there is one incomplete",
+        "playlistAddBlocked": "can't create a new playlist if there are some incomplete",
         "playlistLengthQuestion": "how long do you want your next playlist?",
         "playlistLengthInfo": "Number of songs/days. minimum is 10, maximum is 30",
         "genre": "music genre",

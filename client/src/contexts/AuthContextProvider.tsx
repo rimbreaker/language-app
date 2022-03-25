@@ -60,7 +60,7 @@ export const AuthContextProvider = ({ children }: any) => {
 
         const exisitngUser = await getUserByEmail(userInfo.body.email)
         if (exisitngUser) {
-            setCurrentUser({ ...(exisitngUser as any) })
+            setCurrentUser({ ...currentUser, ...(exisitngUser as any) })
         } else {
             const { display_name, email, images } = userInfo.body
             const haveImages = (images?.length ?? 0) > 0

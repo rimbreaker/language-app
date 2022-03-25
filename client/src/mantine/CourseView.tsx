@@ -9,11 +9,21 @@ import { useTranslation } from 'react-i18next'
 import { useAuthContext } from '../contexts/AuthContextProvider';
 import encoding from '../encoding.json'
 
+
+const calculateCompletion = (playlist: any) => {
+    const songIds: string[] = playlist.songs.map((song: any) => song.youtubeId)
+
+    const keys = Object.entries(playlist).filter(([_, v]: any) => !!v).map(([key]) => key)
+    const completeSong = songIds.filter(id => keys.includes(id))
+    return parseInt(((completeSong.length / (songIds.length ?? 1)) * 100).toFixed(0))
+}
+
 const CourseView = () => {
 
-    const { playlists, fetchPlaylists, setSinglePlaylist } = useFirebaseContext()
+    const { playlists, fetchPlaylists, setSinglePlaylist, setPlaylists, deleteCourse } = useFirebaseContext()
     const { createPlaylist, courseLanguage, setCourseLanguage } = useStateContext()
     const { currentUser } = useAuthContext()
+
 
     const history = useHistory()
 
@@ -31,9 +41,9 @@ const CourseView = () => {
     }, [courseLanguage])
 
     const [daysAmount, setDaysAmount] = useState(10)
-    const [open, setOpen] = useState(false)
+    const [popoverOpen, setPopoverOpen] = useState(false)
     const [modalOpen, setModalOpen] = useState(false)
-    const disabled = false
+    const disabled = () => playlists?.map(calculateCompletion).some((comp: number) => comp !== 100)
 
     const { t } = useTranslation()
 
@@ -44,6 +54,20 @@ const CourseView = () => {
         history.push(`/playlist?id=${playlist.id}`)
     }
 
+    const handlePlaylistCreate = () => {
+        setPopoverOpen(false)
+        createPlaylist(courseLanguage, currentUser.email, daysAmount)
+        setPlaylists((prev: any) => [...prev, { language: courseLanguage, songs: [] }])
+    }
+
+    const handleDeleteCourse = () => {
+        deleteCourse(courseLanguage, currentUser);
+        setModalOpen(false)
+        history.push('/')
+    }
+
+    //  const areAllPlaylistsComplete = 
+
     return (
         <div >
             <Modal
@@ -52,7 +76,9 @@ const CourseView = () => {
                 opened={modalOpen}
                 onClose={() => setModalOpen(false)} title={t('course.shouldDeleteCourse')}>
                 <Group>
-                    <Button color={'red'} >{t("course.yes")}</Button>
+                    <Button
+                        onClick={handleDeleteCourse}
+                        color={'red'} >{t("course.yes")}</Button>
                     <Button
                         data-autoFocus
                         onClick={() => setModalOpen(false)}>
@@ -64,14 +90,15 @@ const CourseView = () => {
                 <Group>
                     <Title style={{ textTransform: 'capitalize' }} >
                         {languageName} course
+                        {/* TODO: translate */}
                     </Title>
                     <Popover
-                        onClose={() => setOpen(false)}
+                        onClose={() => setPopoverOpen(false)}
                         withArrow
-                        opened={open}
+                        opened={popoverOpen}
                         target={
                             <Tooltip
-                                disabled={!disabled}
+                                disabled={!disabled()}
                                 withArrow
                                 style={{ maxWidth: '90vw' }}
                                 transition="fade"
@@ -82,9 +109,9 @@ const CourseView = () => {
                                 label={t("course.playlistAddBlocked")}
                             >
                                 <Button
-                                    disabled={disabled}
+                                    disabled={disabled()}
                                     variant='outline'
-                                    onClick={() => setOpen((o) => !o)}
+                                    onClick={() => setPopoverOpen((o) => !o)}
                                 >{t('course.playlistAdd')}</Button>
                             </Tooltip>}
                         position="bottom"
@@ -106,9 +133,11 @@ const CourseView = () => {
                             styles={{ dropdown: { overflowY: 'scroll', maxHeight: '20vh' } }}
                         />
                         <Button
+
                             mt={6}
-                            //TODO: put real values here
-                            onClick={() => { createPlaylist('NL', 'jjaaccekk@gmail.com', 10) }}>{t("course.create")}</Button>
+                            onClick={handlePlaylistCreate}>
+                            {t("course.create")}
+                        </Button>
                     </Popover>
                 </Group>
                 <Group>
@@ -132,13 +161,12 @@ const CourseView = () => {
                 ]}>
                     {(playlists ?? []).map((playlist: any) => (
                         <Button
+                            loading={!playlist?.index ?? true}
                             key={playlist.id}
-                            color={'yellow'}
+                            color={calculateCompletion(playlist) === 100 ? 'green' : 'yellow'}
                             onClick={() => navigateToPlaylist(playlist)}
-                        >{playlist.id}</Button>
+                        >{playlist.language} {playlist?.index}</Button>
                     ))}
-                    <Button loading color={'yellow'} >list2</Button>
-                    <Button onClick={() => history.push('/playlist')} color={'green'} >list1</Button>
                 </SimpleGrid>
             </ScrollArea>
         </div >
