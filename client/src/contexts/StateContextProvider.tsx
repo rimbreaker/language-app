@@ -1,11 +1,28 @@
 import axios from 'axios';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import { useHistory } from 'react-router';
+import encoding from '../encoding.json'
 
 const StateContext = createContext<any>('');
 
 export const StateContextProvider = ({ children }: any) => {
-    const [courseLanguage, setCourseLanguage] = useState()
+    const [courseLanguage, setCourseLanguage] = useState<any>()
     const [navbarOpen, setNavbarOpen] = useState(false)
+    const history = useHistory()
+
+    //TODO: fix this boi
+    const ensureLanguage = () => {
+        const url = window.location.href
+        if (!courseLanguage) {
+            Object.keys(encoding).forEach(key => {
+                if (url.toLowerCase().includes(key.toLowerCase()))
+                    setCourseLanguage(key)
+                return
+            })
+            history.push('/')
+        }
+
+    }
 
     const fetchTranslation = async (phrase: string, from?: string, to?: string) => {
         return await axios({ url: `http://localhost:4000/translate/${phrase}?from=${from}&to=${to}` })
@@ -27,7 +44,8 @@ export const StateContextProvider = ({ children }: any) => {
                 fetchTranslation,
                 createPlaylist,
                 courseLanguage,
-                setCourseLanguage
+                setCourseLanguage,
+                ensureLanguage
             }}
         >
             {children}

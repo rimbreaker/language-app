@@ -29,7 +29,7 @@ const HeaderMain = () => {
                 opened={modalOpen}
                 onClose={() => setModalOpen(false)}
                 title={t('header.login')}>
-                <Group position='apart'>
+                <Group position='center'>
                     <SpotifyLogin isMainLogin />
                     <Button
                         leftIcon={<BrandGoogle />}
