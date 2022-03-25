@@ -6,11 +6,29 @@ import { Trash } from 'tabler-icons-react';
 import { useFirebaseContext } from '../contexts/FireBaseContextProvider';
 import { useStateContext } from '../contexts/StateContextProvider';
 import { useTranslation } from 'react-i18next'
+import { useAuthContext } from '../contexts/AuthContextProvider';
+import encoding from '../encoding.json'
 
 const CourseView = () => {
 
-    const { playlists, fetchPlaylists } = useFirebaseContext()
-    const { createPlaylist } = useStateContext()
+    const { playlists, fetchPlaylists, setSinglePlaylist } = useFirebaseContext()
+    const { createPlaylist, courseLanguage, setCourseLanguage } = useStateContext()
+    const { currentUser } = useAuthContext()
+
+    const history = useHistory()
+
+    useEffect(() => {
+        if (!courseLanguage) {
+            const languageFromUrl = new URLSearchParams(window.location.search).get("lang")
+            if (languageFromUrl)
+                setCourseLanguage(languageFromUrl)
+            else
+                history.push('/')
+        }
+        else {
+            fetchPlaylists(`${currentUser.email}${courseLanguage}`)
+        }
+    }, [courseLanguage])
 
     const [daysAmount, setDaysAmount] = useState(10)
     const [open, setOpen] = useState(false)
@@ -19,13 +37,13 @@ const CourseView = () => {
 
     const { t } = useTranslation()
 
+    const languageName: string = (encoding[courseLanguage as keyof typeof encoding] as any)?.name ?? ""
 
-    useEffect(() => {
-        //TODO: put real values here
-        fetchPlaylists('jjaaccekk@gmail.comNL')
-    }, [])
+    const navigateToPlaylist = (playlist: any) => {
+        setSinglePlaylist(playlist);
+        history.push(`/playlist?id=${playlist.id}`)
+    }
 
-    const history = useHistory()
     return (
         <div >
             <Modal
@@ -44,8 +62,8 @@ const CourseView = () => {
             </Modal>
             <Group position='apart'>
                 <Group>
-                    <Title >
-                        English course
+                    <Title style={{ textTransform: 'capitalize' }} >
+                        {languageName} course
                     </Title>
                     <Popover
                         onClose={() => setOpen(false)}
@@ -114,8 +132,9 @@ const CourseView = () => {
                 ]}>
                     {(playlists ?? []).map((playlist: any) => (
                         <Button
+                            key={playlist.id}
                             color={'yellow'}
-                            onClick={() => history.push(`/playlist?playlistId=${playlist.id}`)}
+                            onClick={() => navigateToPlaylist(playlist)}
                         >{playlist.id}</Button>
                     ))}
                     <Button loading color={'yellow'} >list2</Button>

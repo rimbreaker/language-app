@@ -16,7 +16,7 @@ ReactDOM.render(
     <FirebaseContextProvider>
       <StateContextProvider>
         <AuthContextProvider>
-          <MantineProvider theme={{ colorScheme: 'dark', fontFamily: "revert" }} >
+          <MantineProvider theme={{ colorScheme: 'dark', fontFamily: "sans-serif", headings: { fontFamily: "sans-serif" } }} >
             <BrowserRouter>
               <React.StrictMode>
                 <App />

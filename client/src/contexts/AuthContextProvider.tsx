@@ -4,13 +4,13 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { signOut, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
 import SpotifyWebApi from 'spotify-web-api-node';
 import config from '../config.env.json'
-import { doc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import { doc, getDocs, query, setDoc, where, updateDoc, deleteDoc } from 'firebase/firestore';
 import axios from 'axios';
 
 const AuthContext = createContext<any>('');
 
 export const AuthContextProvider = ({ children }: any) => {
-    const { auth, db, usersRef } = useFirebaseContext()
+    const { auth, db, usersRef, setSinglePlaylist, setPlaylists } = useFirebaseContext()
 
     const [currentUser, setCurrentUser] = useState({})
 
@@ -60,10 +60,8 @@ export const AuthContextProvider = ({ children }: any) => {
 
         const exisitngUser = await getUserByEmail(userInfo.body.email)
         if (exisitngUser) {
-            console.log('returning user')
             setCurrentUser({ ...(exisitngUser as any) })
         } else {
-            console.log('a new user!!')
             const { display_name, email, images } = userInfo.body
             const haveImages = (images?.length ?? 0) > 0
             const userObject = { displayName: display_name, email }
@@ -76,12 +74,10 @@ export const AuthContextProvider = ({ children }: any) => {
         signInWithPopup(auth, new GoogleAuthProvider()).then(async (user) => {
             const exisitngUser = await getUserByEmail(user.user.email || "")
             if (exisitngUser) {
-                console.log('returning user')
                 setCurrentUser({ ...currentUser, ...(exisitngUser as any) })
             } else {
-                console.log('a new user!!')
                 const { photoURL, displayName, email } = user.user
-                setDoc(doc(db, 'usersData', email || "default"), { photoURL, displayName, email })
+                updateDoc(doc(db, 'usersData', email || "default"), { photoURL, displayName, email })
                 setCurrentUser({ ...currentUser, ...(exisitngUser as any) })
             }
         })
@@ -106,6 +102,33 @@ export const AuthContextProvider = ({ children }: any) => {
         setExpiresIn(undefined)
     }
 
+    const createSpotifyPlaylist = (playlist: any) => {
+        if (accessToken) {
+            const spotifyApi = new SpotifyWebApi({
+                clientId: config.CLIENT_ID,
+            })
+            const playlistName = playlist.id.slice(playlist.id.indexOf(playlist.language))
+            spotifyApi.setAccessToken(accessToken)
+            spotifyApi.createPlaylist(playlistName)
+                .then((pl) => {
+                    console.log(pl)
+                    const playlistId = pl.body.id//spotifyApi.addTracksToPlaylist()
+                    spotifyApi.addTracksToPlaylist(playlistId, playlist.songs.map((song: any) => song.uri))
+                        .then(() => {
+                            updateDoc(doc(db, 'playlists', playlist.id), { spotifyLink: pl.body.uri });
+                            setSinglePlaylist((prev: any) => ({ ...prev, spotifyLink: pl.body.uri }))
+                        })
+                })
+        }
+    }
+
+    const deletePlaylist = (playlist: any) => {
+        deleteDoc(doc(db, 'playlists', playlist.id))
+        setSinglePlaylist(undefined)
+        setPlaylists((prev: any) => prev?.filter((pl: any) => pl.id !== playlist.id) ?? prev)
+        window.history.back()
+    }
+
     return (
         <AuthContext.Provider
             value={{
@@ -119,7 +142,9 @@ export const AuthContextProvider = ({ children }: any) => {
                 setExpiresIn,
                 currentUser,
                 googleLogin,
-                logout
+                logout,
+                createSpotifyPlaylist,
+                deletePlaylist
             }}
         >
             {children}

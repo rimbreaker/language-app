@@ -4,16 +4,12 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 const StateContext = createContext<any>('');
 
 export const StateContextProvider = ({ children }: any) => {
-    const [courseLanguage, setCourseLanguage] = useState('EN')//TODO: make it not have a default
+    const [courseLanguage, setCourseLanguage] = useState()
     const [navbarOpen, setNavbarOpen] = useState(false)
 
-    const [translation, setTranslation] = useState<any>()
-
-
     const fetchTranslation = async (phrase: string, from?: string, to?: string) => {
-        setTranslation(
-            await (await axios({ url: `http://localhost:4000/translate/${phrase}?from=${from}&to=${to}` })).data
-        )
+        return await axios({ url: `http://localhost:4000/translate/${phrase}?from=${from}&to=${to}` })
+            .then((res) => res.data)
     }
 
     const createPlaylist = async (language: string, email: string, length?: number, genre?: string) => {
@@ -29,7 +25,6 @@ export const StateContextProvider = ({ children }: any) => {
                 navbarOpen,
                 setNavbarOpen,
                 fetchTranslation,
-                translation,
                 createPlaylist,
                 courseLanguage,
                 setCourseLanguage

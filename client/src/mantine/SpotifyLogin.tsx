@@ -13,7 +13,7 @@ export default function SpotifyLogin({ isMainLogin }: { isMainLogin?: boolean })
 
     return (
         <div
-            onClick={() => localStorage.setItem('preAuthLoc', window.location.pathname)}
+            onClick={() => { console.log(window.location); localStorage.setItem('preAuthLoc', window.location.href.slice(window.location.origin.length)) }}
         >
             <Button
                 component='a'

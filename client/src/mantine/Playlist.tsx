@@ -8,20 +8,33 @@ import { useAuthContext } from '../contexts/AuthContextProvider';
 import { useTranslation } from 'react-i18next'
 
 const Playlist = () => {
-    const { accessToken } = useAuthContext()
-    const { fetchSinglePlaylist } = useFirebaseContext()
+    const { accessToken, createSpotifyPlaylist, deletePlaylist } = useAuthContext()
+    const { fetchSinglePlaylist, singlePlaylist } = useFirebaseContext()
     const [modalOpen, setModalOpen] = useState(false)
     const [playlist, setPlaylist] = useState<any>()
     const { t } = useTranslation()
+    const history = useHistory()
 
     useEffect(() => {
-        fetchSinglePlaylist('jjaaccekk@gmail.comNL8').then(
-            (pl: any) => {
-                console.log(pl);
-                setPlaylist(pl)
-            }
-        )
-    }, [])
+        const playlistIdFromUrl = new URLSearchParams(window.location.search).get("id");
+        if (!playlistIdFromUrl && !singlePlaylist)
+            history.push("/")
+        if (!singlePlaylist || singlePlaylist.id !== playlistIdFromUrl) {
+            fetchSinglePlaylist(playlistIdFromUrl).then(
+                (pl: any) => {
+                    setPlaylist(pl);
+                }
+            )
+        }
+    }, [singlePlaylist])
+
+    const getDateForCalendar = () => {
+        const dateObject = new Date()
+        const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+        const hours = dateObject.getHours()
+        const startDate = dateObject.getFullYear() + months[dateObject.getMonth()] + dateObject.getUTCDate() + 'T'
+        return startDate + (hours < 10 ? '0' + hours : hours) + '00Z/' + startDate + (hours + 1 < 10 ? '0' + (hours + 1) : (hours + 1)) + '00Z'
+    }
 
     return (
         <  >
@@ -31,7 +44,7 @@ const Playlist = () => {
                 opened={modalOpen}
                 onClose={() => setModalOpen(false)} title={t("playlist.deleteShould")}>
                 <Group>
-                    <Button color={'red'} >{t("playlist.yes")}</Button>
+                    <Button onClick={() => deletePlaylist(playlist)} color={'red'} >{t("playlist.yes")}</Button>
                     <Button
                         data-autoFocus
                         onClick={() => setModalOpen(false)}>
@@ -59,16 +72,27 @@ const Playlist = () => {
                                 itemIcon: { display: 'none' },
                                 itemWrapper: { display: 'block !important' },
                             }}>
-                            {(playlist?.songs ?? []).map((song: any) => <SongListElement key={song.youtubeId} song={song} />)}
+                            {(playlist?.songs ?? []).map((song: any, i: number) => <SongListElement key={song.youtubeId + i} song={song} playlist={playlist} />)}
                         </List>
                     </ScrollArea>
                 </Grid.Col>
                 <Grid.Col span={4}>
                     {accessToken ?
-                        <Button
-                            leftIcon={<BrandSpotify />}
-                            style={{ width: '-webkit-fill-available', height: '8vh' }}
-                            color={'green'}>{t("playlist.playOnSpotify")}</Button> :
+                        (playlist?.spotifyLink ?
+                            <Button
+                                leftIcon={<BrandSpotify />} component='a'
+                                rel="noopener noreferrer"
+                                href={playlist?.spotifyLink}
+                                style={{ width: '-webkit-fill-available', height: '8vh' }}
+                                color={'green'}>{t("playlist.playOnSpotify")}
+                            </Button>
+                            : <Button
+                                leftIcon={<BrandSpotify />}
+                                onClick={() => createSpotifyPlaylist(playlist)}
+                                style={{ width: '-webkit-fill-available', height: '8vh' }}
+                                color={'green'}>{t("playlist.addToSpotify")}
+                            </Button>
+                        ) :
                         <SpotifyLogin />
                     }
                     <Space h="xs" />
@@ -86,7 +110,7 @@ const Playlist = () => {
                         component='a'
                         target='_blank'
                         rel='noopener noreferrer'
-                        href='https://calendar.google.com/calendar/event?action=TEMPLATE&dates=20211001/20211002&text=Time+for+translations&details=Description%0Adescription%0A+%0Adecription+description&location=https://google.com&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D10'
+                        href={`https://calendar.google.com/calendar/event?action=TEMPLATE&dates=${getDateForCalendar()}&text=${t("playlist.reminderTranslateTitle", { language: 'Dutch' })}&details=${t("playlist.translationRemDesc")}&location=${window.location.href}&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D${playlist?.songs?.length ?? 10}`}//TODO: 
                     >{t("playlist.translationsReminder")}</Button>
                     <Space h="xs" />
                     <Button
@@ -94,7 +118,7 @@ const Playlist = () => {
                         component='a'
                         target='_blank'
                         rel='noopener noreferrer'
-                        href='https://calendar.google.com/calendar/event?action=TEMPLATE&dates=20211001/20211002&text=Time+for+translations&details=Description%0Adescription%0A+%0Adecription+description&location=https://google.com&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D10'
+                        href={`https://calendar.google.com/calendar/event?action=TEMPLATE&dates=${getDateForCalendar()}&text=${t("playlist.reminderListenTitle", { language: 'Dutch' })}&details=${t("playlist.translationRemDesc")}&location=${window.location.href}&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D${playlist?.songs?.length ?? 10}`}
                     >{t("playlist.listeningReminder")}</Button>
                     {/* <button onClick={() => spotifyApi.createPlaylist('test playlist')}> add spotify playlist</button> */}
                 </Grid.Col>
@@ -106,21 +130,28 @@ const Playlist = () => {
 
 export default Playlist
 
-const SongListElement = ({ song }: { song?: any }) => {
+const SongListElement = ({ song, playlist }: any) => {
     const { t } = useTranslation()
     const history = useHistory()
 
+    const { setCurrentSong } = useFirebaseContext()
+
+    const songRedirect = (song: any) => {
+        setCurrentSong(song);
+        history.push(`/song?id=${song.youtubeId ?? ''}&playlist=${playlist.id}`)
+    }
+
     return (
         <List.Item >
-            <Paper p='sm' style={{ cursor: 'pointer' }} onClick={() => history.push(`/song?songId${song.youtubeId ?? ''}`)}>
+            <Paper p='sm' style={{ cursor: 'pointer' }} onClick={() => songRedirect(song)}>
                 <Group noWrap position='apart' >
 
                     <Group noWrap >
-                        <Avatar src={song?.albumUrl ?? "https://i.scdn.co/image/ab67616d000048513bba6a5b7ed4477f2e8f90c7"} radius={'xs'} size={'xl'} />
+                        <Avatar src={song?.albumUrl} radius={'xs'} size={'xl'} />
                         <div>
-                            <Text>{song?.title ?? 'Jelous'}</Text>
+                            <Text>{song?.title ?? ''}</Text>
                             <Text size="xs" color="dimmed">
-                                {song?.artist ?? 'Labirinth'}
+                                {song?.artist ?? ''}
                             </Text>
                         </div>
                     </Group>

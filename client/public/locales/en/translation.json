@@ -35,6 +35,7 @@
     "playlist": {
         "completion": "completion",
         "deletePlaylist": "Delete playlist",
+        "addToSpotify": "Add to your Spotify",
         "playOnSpotify": "Play on Spotify",
         "playOnYoutue": "Play on Youtue",
         "translationsReminder": "add a reminder for translations",
@@ -42,7 +43,10 @@
         "complete": "complete",
         "deleteShould": "Are you sure you want to delete this playlist?",
         "yes": "yes",
-        "no": "No"
+        "no": "No",
+        "reminderTranslateTitle": "Time+for+translations: {{language}}",
+        "reminderListenTitle": "Time+for+you+playlist: {{language}}",
+        "translationRemDesc": "a+reminder+for+your+Lyrson+course"
     },
     "song": {
         "markReady": "mark song as translated"

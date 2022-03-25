@@ -36,13 +36,17 @@
         "completion": "ukończone",
         "deletePlaylist": "usuń playlistę",
         "playOnSpotify": "Odtwórz na Spotify",
+        "addToSpotify": "Dodaj do Spotify",
         "playOnYoutue": "Odtwórz na Youtue",
-        "translationsReminder": "utwórz przypomnienie o tłumaczeniach",
-        "listeningReminder": "utwórz przypomnienie o słuchaniu",
+        "translationsReminder": "przypomnienie o tłumaczeniach",
+        "listeningReminder": "przypomnienie o słuchaniu",
         "complete": "ukończone",
         "deleteShould": "Jesteś pewny/a, że chcesz usunąć tą playlistę?",
         "yes": "tak",
-        "no": "Nie"
+        "no": "Nie",
+        "reminderTranslateTitle": "Pora+na+tłumaczenia: {{language}}",
+        "reminderListenTitle": "Pora+na+twoją+playlistę: {{language}}",
+        "translationRemDesc": "przypomnienie+o+twoim+kursie+w+Lyrson"
     },
     "song": {
         "markReady": "oznacz piosenkę jako zakończoną"

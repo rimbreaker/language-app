@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 
 const NavbarMain = () => {
 
+    const { setCourseLanguage } = useStateContext()
 
     const [newCourseLanguage, setNewCourseLanguage] = useState('')
     const [newCourseOpen, setNewCourseOpen] = useState(false)
@@ -17,17 +18,23 @@ const NavbarMain = () => {
 
     const history = useHistory()
     const { t } = useTranslation()
+
+    const handleCourseSelect = (lang: string) => {
+        setCourseLanguage(lang);
+        history.push(`/courseview?lang=${lang}`)
+    }
+
     return (
         <Navbar width={{ sm: 80, lg: 150 }} p="md" hiddenBreakpoint={"sm"} hidden={!navbarOpen} >
             <Navbar.Section
                 grow
                 component={ScrollArea} mx='-xs' px='xs' >
-                {['GB', 'DE', 'FR', 'NL'].map((lang) => (
+                {['EN', 'DE', 'FR', 'NL'].map((lang) => (
                     <div key={lang}>
                         <Group
                             style={{ cursor: 'pointer' }}
                             spacing={"xs"}
-                            onClick={() => history.push('/courseview')}
+                            onClick={() => handleCourseSelect(lang)}
                         >
                             <LazyFlag countryCode={lang} />
                             <Text key={lang}>
@@ -62,7 +69,6 @@ const NavbarMain = () => {
                             name
                         ))} />
                 </Popover>
-
             </Navbar.Section>
         </Navbar>)
 }

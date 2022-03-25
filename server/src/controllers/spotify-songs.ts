@@ -128,7 +128,6 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
       songs: foundSongs,
       completionPercentage: 0,
       language: language,
-      spotifyLink: "",
       userMail,
       youtubeLink: youtubeLink,
     });
@@ -139,7 +138,6 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
       songs: foundSongs,
       completionPercentage: 0,
       language: language,
-      spotifyLink: "",
       userMail: email,
       youtubeLink: youtubeLink,
     });

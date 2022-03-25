@@ -3,6 +3,8 @@ import { initializeApp } from 'firebase/app'
 import config from '../config.env.json'
 import { getAuth } from 'firebase/auth';
 import { collection, doc, getDoc, getDocs, getFirestore, query, where } from 'firebase/firestore';
+import { sign } from 'crypto';
+import { useAuthContext } from './AuthContextProvider';
 
 
 const firebaseConfig = {
@@ -27,6 +29,7 @@ const FirebaseContext = createContext<any>('');
 export const FirebaseContextProvider = ({ children }: any) => {
     const [playlists, setPlaylists] = useState<any>()
     const [singlePlaylist, setSinglePlaylist] = useState<any>()
+    const [currentSong, setCurrentSong] = useState<any>()
 
     const fetchSinglePlaylist = async (playlistName: string) => {
         if ((singlePlaylist?.id ?? '') === playlistName) {
@@ -53,15 +56,43 @@ export const FirebaseContextProvider = ({ children }: any) => {
         setPlaylists(fetchedPlaylists)
     }
 
+    const fetchCurrentSong = async (songId: string, playlistId?: string) => {
+        if ((currentSong?.youtubeId ?? '') === songId) {
+            return currentSong
+        }
+
+        const cachedSong = singlePlaylist.songs.find((sg: any) => sg.youtubeId === songId)
+        if (cachedSong) {
+            setCurrentSong(cachedSong)
+            return cachedSong
+        }
+
+        if (playlistId) {
+            const fetchedPlaylistDoc = await (await getDoc(doc(db, 'playlists', playlistId)))
+            const fetchedPlaylist = { id: fetchedPlaylistDoc.id, ...fetchedPlaylistDoc.data() }
+            setSinglePlaylist(fetchedPlaylist)
+            const fetchedSong = (fetchedPlaylist as any).songs.find((sg: any) => sg.youtubeId === songId)
+            setCurrentSong(fetchedSong)
+            return fetchedSong
+        }
+
+        window.history.pushState({}, "", "/")
+    }
+
     return (
         <FirebaseContext.Provider
             value={{
+                setPlaylists,
                 playlists,
                 fetchPlaylists,
+                setSinglePlaylist,
                 fetchSinglePlaylist,
                 auth,
                 db,
-                usersRef
+                usersRef,
+                currentSong,
+                setCurrentSong,
+                fetchCurrentSong
             }}
         >
             {children}
