@@ -1,11 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { initializeApp } from 'firebase/app'
 import config from '../config.env.json'
 import { getAuth } from 'firebase/auth';
-import { collection, doc, getDoc, getDocs, getFirestore, query, where } from 'firebase/firestore';
-import { sign } from 'crypto';
-import { useAuthContext } from './AuthContextProvider';
-
+import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where } from 'firebase/firestore';
 
 const firebaseConfig = {
     apiKey: config.apiKey,
@@ -30,6 +27,8 @@ export const FirebaseContextProvider = ({ children }: any) => {
     const [playlists, setPlaylists] = useState<any>()
     const [singlePlaylist, setSinglePlaylist] = useState<any>()
     const [currentSong, setCurrentSong] = useState<any>()
+    const [translation, setTranslation] = useState<any>()
+
 
     const fetchSinglePlaylist = async (playlistName: string) => {
         if ((singlePlaylist?.id ?? '') === playlistName) {
@@ -61,23 +60,34 @@ export const FirebaseContextProvider = ({ children }: any) => {
             return currentSong
         }
 
-        const cachedSong = singlePlaylist.songs.find((sg: any) => sg.youtubeId === songId)
-        if (cachedSong) {
-            setCurrentSong(cachedSong)
-            return cachedSong
-        }
-
-        if (playlistId) {
-            const fetchedPlaylistDoc = await (await getDoc(doc(db, 'playlists', playlistId)))
-            const fetchedPlaylist = { id: fetchedPlaylistDoc.id, ...fetchedPlaylistDoc.data() }
-            setSinglePlaylist(fetchedPlaylist)
-            const fetchedSong = (fetchedPlaylist as any).songs.find((sg: any) => sg.youtubeId === songId)
+        if (songId) {
+            const fetchedSongDoc = await getDoc(doc(db, 'songs', songId))
+            const fetchedSong = { id: fetchedSongDoc.id, ...(await fetchedSongDoc.data()) }
             setCurrentSong(fetchedSong)
             return fetchedSong
         }
-
-        window.history.pushState({}, "", "/")
     }
+
+    const markSongAsTranslated = async (songId: string, playlistId: string) => {
+
+        const lyrics = JSON.parse(localStorage.getItem(songId) ?? '{}')
+
+        updateDoc(doc(db, 'playlists', playlistId), { [songId]: true })
+        setDoc(doc(db, 'translations', songId + '[' + playlistId.split('[')[0]), { songId, playlistId, lyrics, userId: playlistId.split('-')[0] })
+
+        setSinglePlaylist((prev: any) => ({ ...prev, [songId]: true }))
+        setTranslation({ songId, playlistId, lyrics, userId: playlistId.split('-')[0] })
+    }
+
+    const unmarkTranslation = async (songId: string, playlistId: string) => {
+
+        updateDoc(doc(db, 'playlists', playlistId), { [songId]: false })
+        deleteDoc(doc(db, 'translations', songId + '[' + playlistId.split('[')[0]))
+
+        setSinglePlaylist((prev: any) => ({ ...prev, [songId]: undefined }))
+        setTranslation(undefined)
+    }
+
 
     return (
         <FirebaseContext.Provider
@@ -92,7 +102,9 @@ export const FirebaseContextProvider = ({ children }: any) => {
                 usersRef,
                 currentSong,
                 setCurrentSong,
-                fetchCurrentSong
+                fetchCurrentSong,
+                markSongAsTranslated,
+                unmarkTranslation
             }}
         >
             {children}

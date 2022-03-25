@@ -65,8 +65,8 @@ const NavbarMain = () => {
                         style={{ maxHeight: '30vh' }}
                         styles={{ dropdown: { overflowY: 'scroll', maxHeight: '30vh' } }}
                         height='30vh'
-                        data={Object.values(availableLangs).map(({ name }: any) => (
-                            name
+                        data={Object.keys(availableLangs).map((name: any) => (
+                            t(`language.${name}`)
                         ))} />
                 </Popover>
             </Navbar.Section>

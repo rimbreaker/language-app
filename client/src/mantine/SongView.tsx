@@ -14,7 +14,9 @@ const SongView = () => {
 
     const { t } = useTranslation()
     const [translatorInput, setTranslatorInput] = useState('')
-    const { currentSong, fetchCurrentSong, singlePlaylist } = useFirebaseContext()
+    const { currentSong, fetchCurrentSong, singlePlaylist,
+        markSongAsTranslated,
+        unmarkTranslation } = useFirebaseContext()
 
     const { accessToken } = useAuthContext()
 
@@ -23,34 +25,42 @@ const SongView = () => {
     useEffect(() => {
 
         const songIdFromUrl = new URLSearchParams(window.location.search).get("id")
-        const playlistIdFromUrl = new URLSearchParams(window.location.search).get("playlist")
-        if (!songIdFromUrl && !currentSong)
+        if (!songIdFromUrl && !currentSong) {
             history.push('/')
-        if (!currentSong || currentSong.youtubeId !== songIdFromUrl) {
+        } if (!(currentSong?.lyrics ?? false) || currentSong.youtubeId !== songIdFromUrl) {
             if (songIdFromUrl) {
-                fetchCurrentSong(songIdFromUrl, playlistIdFromUrl)
+                fetchCurrentSong(songIdFromUrl)
             }
-            else
+            else {
                 history.push('/')
+            }
         }
     }, [currentSong])
 
-    const columnRef = useRef<any>()
+    const playlistLink = new URLSearchParams(window.location.search).get("playlist")
+
+    const handleTranslationMark = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.target.checked ? markSongAsTranslated(currentSong?.youtubeId, (singlePlaylist?.id ?? playlistLink)) :
+            unmarkTranslation(currentSong?.youtubeId, (singlePlaylist?.id ?? playlistLink))
+    }
+
     return (
         <>
-            <ActionIcon
+            {playlistLink && <ActionIcon
                 component='a'
-                onClick={() => history.push(`/playlist?id=${singlePlaylist?.id ?? new URLSearchParams(window.location.search).get("playlist")}`)}
+                onClick={() => history.push(`/playlist?id=${singlePlaylist?.id ?? playlistLink}`)}
             >
+
                 <ArrowBack />
             </ActionIcon>
+            }
             <Grid grow  >
                 <Grid.Col span={8}>
                     <Title align='center' >
                         {`${currentSong?.artist ?? ''} - ${currentSong?.title ?? ''}`}
                     </Title>
                     <ScrollArea type='always' offsetScrollbars style={{ height: '70vh' }}>
-                        <LyricNotePad backupId={`${currentSong?.artist ?? ''}-${currentSong?.title ?? ''}`} rows={2} lyrics={currentSong?.lyrics ?? ''} setTranslatorInput={setTranslatorInput} />
+                        <LyricNotePad backupId={currentSong?.youtubeId ?? ''} rows={2} lyrics={currentSong?.lyrics ?? ''} setTranslatorInput={setTranslatorInput} />
                     </ScrollArea>
                 </Grid.Col>
                 <Grid.Col span={4}   >
@@ -75,7 +85,7 @@ const SongView = () => {
                                 />
                             </AspectRatio>
                             <Space h='xs' />
-                            <Checkbox label={t("song.markReady")} styles={{
+                            <Checkbox onChange={handleTranslationMark} label={t("song.markReady")} styles={{
                                 input: { backgroundColor: 'aliceBlue' },
                             }} />
                         </>

@@ -6,6 +6,7 @@ import SpotifyLogin from './SpotifyLogin';
 import { useFirebaseContext } from '../contexts/FireBaseContextProvider';
 import { useAuthContext } from '../contexts/AuthContextProvider';
 import { useTranslation } from 'react-i18next'
+import completeImagesUrls from '../imagesUrls.json'
 
 const Playlist = () => {
     const { accessToken, createSpotifyPlaylist, deletePlaylist } = useAuthContext()
@@ -14,6 +15,10 @@ const Playlist = () => {
     const [playlist, setPlaylist] = useState<any>()
     const { t } = useTranslation()
     const history = useHistory()
+    const [completeSongs, setCompleteSongs] = useState<string[]>()
+
+
+    const getCompleteSongs = (object: any) => Object.keys(object).filter((key) => playlist.songs.map((song: any) => song.youtubeId).includes(key))
 
     useEffect(() => {
         const playlistIdFromUrl = new URLSearchParams(window.location.search).get("id");
@@ -28,6 +33,13 @@ const Playlist = () => {
         }
     }, [singlePlaylist])
 
+    useEffect(() => {
+
+        if (playlist)
+            setCompleteSongs(getCompleteSongs(playlist))
+    }, [playlist])
+
+
     const getDateForCalendar = () => {
         const dateObject = new Date()
         const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
@@ -35,6 +47,9 @@ const Playlist = () => {
         const startDate = dateObject.getFullYear() + months[dateObject.getMonth()] + dateObject.getUTCDate() + 'T'
         return startDate + (hours < 10 ? '0' + hours : hours) + '00Z/' + startDate + (hours + 1 < 10 ? '0' + (hours + 1) : (hours + 1)) + '00Z'
     }
+
+    const uniquePlaylist = playlist ? [...(new Set(playlist.songs.map((song: any) => song.youtubeId)) as any)] : ['1']
+    const calculateCompletion = () => (completeSongs?.length ?? 0) > 0 ? (((completeSongs!.length) / uniquePlaylist?.length) * 100).toFixed(0) : 0
 
     return (
         <  >
@@ -53,11 +68,11 @@ const Playlist = () => {
                 </Group>
             </Modal>
             <Group position='apart'>
-                <Title >
-                    {playlist?.id ?? 'Playlist 1'}
+                <Title style={{ textTransform: "capitalize" }} >
+                    {t(`language.${playlist?.language}`) + ' ' + playlist?.index ?? 'Playlist 1'}
                 </Title>
                 <Group>
-                    <Text>{playlist?.completionPercentage ?? '0'}% {t("playlist.completion")}</Text>
+                    <Text>{calculateCompletion() ?? '0'}% {t("playlist.completion")}</Text>
                     <Button color={"violet"} onClick={() => setModalOpen(true)} rightIcon={<Trash />}>
                         {t("playlist.deletePlaylist")}
                     </Button>
@@ -72,7 +87,7 @@ const Playlist = () => {
                                 itemIcon: { display: 'none' },
                                 itemWrapper: { display: 'block !important' },
                             }}>
-                            {(playlist?.songs ?? []).map((song: any, i: number) => <SongListElement key={song.youtubeId + i} song={song} playlist={playlist} />)}
+                            {(playlist?.songs ?? []).map((song: any, i: number) => <SongListElement completeSongs={completeSongs} key={song.youtubeId + i} song={song} playlist={playlist} />)}
                         </List>
                     </ScrollArea>
                 </Grid.Col>
@@ -130,20 +145,18 @@ const Playlist = () => {
 
 export default Playlist
 
-const SongListElement = ({ song, playlist }: any) => {
+const SongListElement = ({ song, playlist, completeSongs }: any) => {
     const { t } = useTranslation()
     const history = useHistory()
-
-    const { setCurrentSong } = useFirebaseContext()
-
     const songRedirect = (song: any) => {
-        setCurrentSong(song);
         history.push(`/song?id=${song.youtubeId ?? ''}&playlist=${playlist.id}`)
     }
 
+
+    const url = (completeImagesUrls as string[])[parseInt((Math.random() * (completeImagesUrls as string[]).length).toString())]
     return (
         <List.Item >
-            <Paper p='sm' style={{ cursor: 'pointer' }} onClick={() => songRedirect(song)}>
+            <Paper p='sm' style={{ cursor: 'pointer', backgroundImage: completeSongs?.includes(song.youtubeId) ? `url(${url})` : undefined }} onClick={() => songRedirect(song)}>
                 <Group noWrap position='apart' >
 
                     <Group noWrap >
@@ -155,7 +168,7 @@ const SongListElement = ({ song, playlist }: any) => {
                             </Text>
                         </div>
                     </Group>
-                    <Text style={{ paddingRight: '10px' }}>{t("playlist.complete")}</Text>
+                    {completeSongs?.includes(song.youtubeId) && <Text style={{ paddingRight: '10px', color: 'white' }}>{t("playlist.complete")}</Text>}
                 </Group>
             </Paper>
         </List.Item>)

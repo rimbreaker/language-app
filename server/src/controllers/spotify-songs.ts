@@ -21,7 +21,7 @@ type song = {
   albumUrl: string;
   uri: string;
   speechiness: number;
-  wordSearched: string;
+  wordsSearched: string[];
   youtubeId: string;
   language: string;
   genre: string;
@@ -117,23 +117,37 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
         "https://www.youtube.com/watch_videos?video_ids="
       ) + `&title=${language}${playlistIndex}`;
 
-    const playlistId = email + language + playlistIndex;
+    const playlistId =
+      encodeURI(email?.toString() ?? "") +
+      "[" +
+      encodeURI(language) +
+      "[" +
+      encodeURI(playlistIndex.toString());
 
     const userMail = email?.toString() || "";
 
-    const activeCourse = playlistId.slice(0, -playlistIndex.toString().length);
+    const activeCourse = email + language;
 
     setDoc(doc(db, "playlists", playlistId), {
       activeCourse,
-      songs: foundSongs,
+      index: playlistIndex,
+      songs: foundSongs.map((song) => ({
+        title: song.title,
+        artist: song.artist,
+        albumUrl: song.albumUrl,
+        youtubeId: song.youtubeId,
+      })),
       completionPercentage: 0,
       language: language,
       userMail,
       youtubeLink: youtubeLink,
     });
 
+    console.log("playlist ready");
+
     res.json({
       id: email + language + playlistIndex,
+      index: playlistIndex,
       activeCourse: email + language,
       songs: foundSongs,
       completionPercentage: 0,
@@ -244,6 +258,26 @@ const handleSong = async (
     console.log("song in wrong language!! fetching another one");
     return await fallback();
   }
+  const youtubeId = await getYoutubeId(artist, title);
+
+  setDoc(doc(db, "songs", youtubeId), {
+    title: String(title),
+    artist: String(artist),
+    allArtists: String(allArtists),
+    albumUrl: String(
+      track.album.images.reduce((smallest: any, image: any) => {
+        if (image?.height < smallest?.height) return image;
+        return smallest;
+      }, track.album.images[0]).url
+    ),
+    uri: String(track.uri),
+    speechiness: textFeatures.body.speechiness,
+    wordsSearched: [word],
+    youtubeId: youtubeId,
+    language: language,
+    genre: String(genre),
+    lyrics,
+  });
 
   return {
     title: String(title),
@@ -257,8 +291,8 @@ const handleSong = async (
     ),
     uri: String(track.uri),
     speechiness: textFeatures.body.speechiness,
-    wordSearched: word,
-    youtubeId: await getYoutubeId(artist, title),
+    wordsSearched: [word],
+    youtubeId: youtubeId,
     language: language,
     genre: String(genre),
     lyrics,

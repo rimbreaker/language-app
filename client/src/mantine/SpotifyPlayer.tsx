@@ -6,19 +6,19 @@ import { useAuthContext } from "../contexts/AuthContextProvider"
 
 export default function SpotifyPlayer({ trackUri }: { trackUri: string }) {
 
-    const [hoverTrigger, setHoverTrigger] = useState<any>()
-
     const { accessToken } = useAuthContext()
 
-    const initWrapperRef = useRef<any>()
+    const [maxWidth, setMaxWidth] = useState()
+
+    const wrapperRef = useRef<any>()
+
+    useEffect(() => {
+        setMaxWidth(wrapperRef.current.getBoundingClientRect().width)
+    }, [])
 
     return (
-        <>{hoverTrigger ?
-            <div id='player-wrapper' style={{ maxWidth: `${hoverTrigger}px` }}   >
-                <Player accessToken={accessToken} trackUri={trackUri} />
-            </div>
-            : <div ref={initWrapperRef} id='player-wrapper' onMouseOver={() => setHoverTrigger(initWrapperRef.current.getBoundingClientRect().width)}   >
-                <Player accessToken={accessToken} trackUri={trackUri} />
-            </div>}</>
+        <div ref={wrapperRef} style={{ maxWidth: `${maxWidth}px` }}   >
+            <Player accessToken={accessToken} trackUri={trackUri} />
+        </div>
     )
 }
