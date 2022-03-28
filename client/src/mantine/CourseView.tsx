@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next'
 import { useAuthContext } from '../contexts/AuthContextProvider';
 import encoding from '../encoding.json'
 
-
 const calculateCompletion = (playlist: any) => {
     const songIds: string[] = playlist.songs.map((song: any) => song.youtubeId)
 
@@ -47,16 +46,16 @@ const CourseView = () => {
 
     const { t } = useTranslation()
 
-    const languageName: string = (encoding[courseLanguage as keyof typeof encoding] as any)?.name ?? ""
-
     const navigateToPlaylist = (playlist: any) => {
         setSinglePlaylist(playlist);
         history.push(`/playlist?id=${playlist.id}`)
     }
 
     const handlePlaylistCreate = () => {
+        const rgCode = (encoding[courseLanguage as keyof typeof encoding] as any)?.regionCode ?? courseLanguage;
+
         setPopoverOpen(false)
-        createPlaylist(courseLanguage, currentUser.email, daysAmount)
+        createPlaylist(rgCode, currentUser.email, daysAmount)
         setPlaylists((prev: any) => [...prev, { language: courseLanguage, songs: [] }])
     }
 
@@ -65,8 +64,6 @@ const CourseView = () => {
         setModalOpen(false)
         history.push('/')
     }
-
-    //  const areAllPlaylistsComplete = 
 
     return (
         <div >
@@ -89,8 +86,7 @@ const CourseView = () => {
             <Group position='apart'>
                 <Group>
                     <Title style={{ textTransform: 'capitalize' }} >
-                        {languageName} course
-                        {/* TODO: translate */}
+                        {t('course.courseName', { languageName: t(`language.${courseLanguage}`) })}
                     </Title>
                     <Popover
                         onClose={() => setPopoverOpen(false)}
@@ -118,7 +114,7 @@ const CourseView = () => {
                     >
                         <NumberInput
                             value={daysAmount}
-                            onChange={(e) => setDaysAmount(e ?? 10)}
+                            onChange={(e) => e && setDaysAmount(e)}
                             label={t("course.playlistLengthQuestion")}
                             description={t("course.playlistLengthInfo")}
                             max={30}
@@ -133,7 +129,6 @@ const CourseView = () => {
                             styles={{ dropdown: { overflowY: 'scroll', maxHeight: '20vh' } }}
                         />
                         <Button
-
                             mt={6}
                             onClick={handlePlaylistCreate}>
                             {t("course.create")}
@@ -142,6 +137,7 @@ const CourseView = () => {
                 </Group>
                 <Group>
                     <Text>0 {t("course.wordsLearned")}</Text>
+                    {/* TODO: add logic here */}
                     <Button
                         color={"violet"}
                         onClick={() => setModalOpen(true)}
@@ -165,7 +161,8 @@ const CourseView = () => {
                             key={playlist.id}
                             color={calculateCompletion(playlist) === 100 ? 'green' : 'yellow'}
                             onClick={() => navigateToPlaylist(playlist)}
-                        >{playlist.language} {playlist?.index}</Button>
+                            style={{ textTransform: 'capitalize' }}
+                        >{t(`language.${playlist.language}`)} {playlist?.index}</Button>
                     ))}
                 </SimpleGrid>
             </ScrollArea>

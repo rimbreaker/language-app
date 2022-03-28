@@ -17,6 +17,7 @@
         "language": "language"
     },
     "course": {
+        "courseName": "{{languageName}} course",
         "shouldDeleteCourse": "Are you sure you want to delete this course?",
         "yes": "yes",
         "no": "No",
@@ -33,6 +34,7 @@
         "playlists": "your playlists:"
     },
     "playlist": {
+        "playlistName": "Playlist: {{languageName}} {{playlistIndex}}",
         "completion": "completion",
         "deletePlaylist": "Delete playlist",
         "addToSpotify": "Add to your Spotify",

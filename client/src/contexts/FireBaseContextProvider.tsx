@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import { initializeApp } from 'firebase/app'
 import config from '../config.env.json'
 import { getAuth } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, increment } from 'firebase/firestore';
 
 const firebaseConfig = {
     apiKey: config.apiKey,
@@ -88,6 +88,7 @@ export const FirebaseContextProvider = ({ children }: any) => {
 
         updateDoc(doc(db, 'playlists', playlistId), { [songId]: true })
         setDoc(doc(db, 'translations', songId + '[' + playlistId.split('[')[0]), { songId, playlistId, lyrics, userId: playlistId.split('-')[0] })
+        updateDoc(doc(db, 'activeCourses', playlistId.split('[').slice(0, 2).join("")), { wordsLearned: increment(currentSong.lyrics.split(" ").length) })
 
         setSinglePlaylist((prev: any) => ({ ...prev, [songId]: true }))
         setTranslation({ songId, playlistId, lyrics, userId: playlistId.split('-')[0] })
@@ -97,6 +98,7 @@ export const FirebaseContextProvider = ({ children }: any) => {
 
         updateDoc(doc(db, 'playlists', playlistId), { [songId]: false })
         deleteDoc(doc(db, 'translations', songId + '[' + playlistId.split('[')[0]))
+        updateDoc(doc(db, 'activeCourses', playlistId.split('[').slice(0, 2).join("")), { wordsLearned: increment(-currentSong.lyrics.split(" ").length) })
 
         setSinglePlaylist((prev: any) => ({ ...prev, [songId]: undefined }))
         setTranslation(undefined)
@@ -107,7 +109,7 @@ export const FirebaseContextProvider = ({ children }: any) => {
         const langCode = language.encode
 
         const newCourse = {
-            courseName: user.email + language,
+            courseName: user.email + language.encode,
             language: langCode,
             userMail: user.email,
             wordsLearned: 0

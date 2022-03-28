@@ -81,7 +81,7 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
     fs.readFileSync(path.join(scrapperDirectory, `${language}.json`)).toString()
   );
 
-  const playlistLength = parseInt(length?.toString() || "10");
+  const playlistLength = parseInt(length?.toString() ?? "10");
 
   const wordsToUse = wordsList
     .slice(0, learnedSoFar + playlistLength)

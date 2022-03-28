@@ -17,7 +17,8 @@ const Translator = ({ input, setInput }: { input: string, setInput: (a: string) 
     const [translation, setTranslation] = useState()
 
     useEffect(() => {
-        fetchTranslation(phraseToTranslate, courseLanguage, currentLanuage).then((res: any) => setTranslation(res))
+        if (phraseToTranslate.length > 0)
+            fetchTranslation(phraseToTranslate, courseLanguage, currentLanuage).then((res: any) => setTranslation(res))
     }, [phraseToTranslate])
 
 

@@ -9,6 +9,7 @@ import { useAuthContext } from '../contexts/AuthContextProvider'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
 import { useFirebaseContext } from '../contexts/FireBaseContextProvider'
+import { useStateContext } from '../contexts/StateContextProvider'
 
 const SongView = () => {
 
@@ -19,6 +20,7 @@ const SongView = () => {
         unmarkTranslation } = useFirebaseContext()
 
     const { accessToken } = useAuthContext()
+    const { ensureLanguageByPlaylist, setCourseLanguage, courseLanguage } = useStateContext()
 
     const history = useHistory()
 
@@ -35,7 +37,15 @@ const SongView = () => {
                 history.push('/')
             }
         }
+        ensureLanguage()
     }, [currentSong])
+
+    const ensureLanguage = () => {
+        ensureLanguageByPlaylist()
+        if (!courseLanguage && currentSong)
+            setCourseLanguage(currentSong.language)
+
+    }
 
     const playlistLink = new URLSearchParams(window.location.search).get("playlist")
 

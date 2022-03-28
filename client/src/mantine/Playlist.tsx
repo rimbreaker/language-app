@@ -69,8 +69,7 @@ const Playlist = () => {
             </Modal>
             <Group position='apart'>
                 <Title style={{ textTransform: "capitalize" }} >
-                    Playlist {t(`language.${playlist?.language}`) + ' ' + playlist?.index ?? 'Playlist 1'}
-                    {/* TODO: translate */}
+                    {t("playlist.playlistName", { languageName: t(`language.${playlist?.language}`), playlistIndex: playlist?.index ?? 0 })}
                 </Title>
                 <Group>
                     <Text>{calculateCompletion() ?? '0'}% {t("playlist.completion")}</Text>
@@ -126,7 +125,7 @@ const Playlist = () => {
                         component='a'
                         target='_blank'
                         rel='noopener noreferrer'
-                        href={`https://calendar.google.com/calendar/event?action=TEMPLATE&dates=${getDateForCalendar()}&text=${t("playlist.reminderTranslateTitle", { language: 'Dutch' })}&details=${t("playlist.translationRemDesc")}&location=${window.location.href}&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D${playlist?.songs?.length ?? 10}`}//TODO: 
+                        href={`https://calendar.google.com/calendar/event?action=TEMPLATE&dates=${getDateForCalendar()}&text=${t("playlist.reminderTranslateTitle", { language: 'Dutch' })}&details=${t("playlist.translationRemDesc")}&location=${window.location.href}&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D${playlist?.songs?.length ?? 10}`}
                     >{t("playlist.translationsReminder")}</Button>
                     <Space h="xs" />
                     <Button
