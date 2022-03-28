@@ -31,6 +31,7 @@ export const FirebaseContextProvider = ({ children }: any) => {
     const [translation, setTranslation] = useState<any>()
     const [courses, setCourses] = useState<any>()
 
+
     const fetchCourses = async (user: any) => {
 
         const coursesDocs = await getDocs(query(corsesRef, where('userMail', '==', user.email)))
@@ -122,6 +123,7 @@ export const FirebaseContextProvider = ({ children }: any) => {
     return (
         <FirebaseContext.Provider
             value={{
+                playlistsRef,
                 deleteCourse,
                 fetchCourses,
                 courses,

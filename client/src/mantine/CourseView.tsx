@@ -8,6 +8,7 @@ import { useStateContext } from '../contexts/StateContextProvider';
 import { useTranslation } from 'react-i18next'
 import { useAuthContext } from '../contexts/AuthContextProvider';
 import encoding from '../encoding.json'
+import { onSnapshot } from 'firebase/firestore';
 
 const calculateCompletion = (playlist: any) => {
     const songIds: string[] = playlist.songs.map((song: any) => song.youtubeId)
@@ -21,7 +22,15 @@ const CourseView = () => {
 
     const { playlists, fetchPlaylists, setSinglePlaylist, setPlaylists, deleteCourse } = useFirebaseContext()
     const { createPlaylist, courseLanguage, setCourseLanguage } = useStateContext()
-    const { currentUser } = useAuthContext()
+    const { currentUser, playlistQuery } = useAuthContext()
+
+    useEffect(() => {
+        onSnapshot(playlistQuery, (snapshot: any) => {
+            setPlaylists(snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() })))
+        })
+
+    }, [courseLanguage])
+
 
 
     const history = useHistory()
@@ -34,9 +43,9 @@ const CourseView = () => {
             else
                 history.push('/')
         }
-        else {
-            fetchPlaylists(`${currentUser.email}${courseLanguage}`)
-        }
+        //   else {
+        //       fetchPlaylists(`${currentUser.email}${courseLanguage}`)
+        //   }
     }, [courseLanguage])
 
     const [daysAmount, setDaysAmount] = useState(10)

@@ -6,11 +6,13 @@ import SpotifyWebApi from 'spotify-web-api-node';
 import config from '../config.env.json'
 import { doc, getDocs, query, setDoc, where, updateDoc, deleteDoc } from 'firebase/firestore';
 import axios from 'axios';
+import { useStateContext } from './StateContextProvider';
 
 const AuthContext = createContext<any>('');
 
 export const AuthContextProvider = ({ children }: any) => {
-    const { auth, db, usersRef, setSinglePlaylist, setPlaylists } = useFirebaseContext()
+    const { auth, db, usersRef, setSinglePlaylist, setPlaylists, playlistsRef } = useFirebaseContext()
+    const { courseLanguage } = useStateContext()
 
     const [currentUser, setCurrentUser] = useState({})
 
@@ -129,9 +131,14 @@ export const AuthContextProvider = ({ children }: any) => {
         window.history.back()
     }
 
+    const playlistQuery = query(playlistsRef,
+        where("userMail", "==", (currentUser as any).email ?? "default"),
+        where("language", "==", courseLanguage ?? 'EN'))
+
     return (
         <AuthContext.Provider
             value={{
+                playlistQuery,
                 spotifyLogin,
                 isLoggedIn,
                 accessToken,
