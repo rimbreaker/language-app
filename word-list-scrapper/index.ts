@@ -1,7 +1,37 @@
-import { writeFileSync, readFileSync } from "fs";
+import { writeFileSync, readFileSync, appendFileSync, fstat } from "fs";
 import xlsx from "xlsx";
 import axios from "axios";
 const HOMEPAGE_URL = "https://www.101languages.net";
+//import PL from "./PL.json";
+//import AE from "./AE.json";
+//import BG from "./BG.json";
+//import CZ from "./CZ.json";
+//import DE from "./DE.json";
+//import DK from "./DK.json";
+//import EE from "./EE.json";
+//import EN from "./EN.json";
+//import ES from "./ES.json";
+//import FI from "./FI.json";
+//import FR from "./FR.json";
+//import GR from "./GR.json";
+//import HR from "./HR.json";
+//import HU from "./HU.json";
+//import IL from "./IL.json";
+//import IS from "./IS.json";
+//import IT from "./IT.json";
+//import LV from "./LV.json";
+//import MK from "./MK.json";
+//import MY from "./MY.json";
+//import NL from "./NL.json";
+//import NO from "./NO.json";
+//import PT from "./PT.json";
+//import RO from "./RO.json";
+//import RS from "./RS.json";
+//import RU from "./RU.json";
+//import SE from "./SE.json";
+//import SI from "./SI.json";
+import SK from "./SK.json";
+import TR from "./TR.json";
 
 const scrape = async () => {
   const startHtml: string = (await axios.get(HOMEPAGE_URL)).data;
@@ -116,6 +146,27 @@ const scrapeEng = async () => {
   );
 };
 
+const testAsyncFunction = () => {
+  const arr = ["nie", "to", "się", "w", "na", "i", "z", "co", "jest", "że"];
+
+  console.time("with promise");
+  //Promise.all(arr.map(async (n) => console.log((PL as string[]).includes(n))));
+  console.timeEnd("with promise");
+
+  //console.time("without promise");
+  //
+  //arr.forEach((n) => console.log((PL as string[]).includes(n)));
+  //console.timeEnd("without promise");
+};
+
+const getRepeatingWords = () => {
+  console.time("fun");
+  console.debug("starting the fun");
+  writeFileSync("SK1000.json", JSON.stringify((SK as string[]).slice(0, 1000)));
+  writeFileSync("TR1000.json", JSON.stringify((TR as string[]).slice(0, 1000)));
+  console.timeEnd("fun");
+};
+
 (async () => {
-  await scrapeEng();
+  await getRepeatingWords();
 })();

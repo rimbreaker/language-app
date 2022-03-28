@@ -41,7 +41,7 @@ const return30songs = async (req: Request, res: Response) => {
 
   const wordsList: string[] = JSON.parse(
     fs
-      .readFileSync(path.join(scrapperDirectory, `${countryCode}.json`))
+      .readFileSync(path.join(scrapperDirectory, `${countryCode}1000.json`))
       .toString()
   );
   const top30Words = wordsList.slice(0, 30);
@@ -71,14 +71,16 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
     clientSecret: CLIENT_SECRET,
   });
 
-  const wordObject = (await getDoc(doc(Words, `${email}${language}`))).data(); // await Words.get(`${email}${language}`).data();
+  const wordObject = (await getDoc(doc(Words, `${email}${language}`))).data();
 
   const learnedSoFar = Object.values(wordObject || {}).length;
 
   const learnedWordsArray = Object.values(wordObject || {});
 
   const wordsList: string[] = JSON.parse(
-    fs.readFileSync(path.join(scrapperDirectory, `${language}.json`)).toString()
+    fs
+      .readFileSync(path.join(scrapperDirectory, `${language}1000.json`))
+      .toString()
   );
 
   const playlistLength = parseInt(length?.toString() ?? "10");
