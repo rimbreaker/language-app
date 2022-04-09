@@ -21,9 +21,9 @@ const setupSwagger = (app: Express) => {
 
   const swaggerDocs = swaggerJsDoc(swaggerOptions);
   app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-  // app.use("/", (_, res) => {
-  //   res.redirect("/swagger");
-  // });
+  app.use("/", (_, res) => {
+    res.redirect("/swagger");
+  });
 };
 
 export default setupSwagger;

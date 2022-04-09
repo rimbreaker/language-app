@@ -1,0 +1,10 @@
+FROM node:alpine as build
+WORKDIR /app
+COPY . .
+RUN yarn
+RUN yarn build
+
+FROM node:alpine
+COPY --from=build /app /
+CMD yarn start
+EXPOSE 4000

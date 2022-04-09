@@ -6,6 +6,7 @@ import setupSwagger from "./util/setupSwagger";
 import spotifySongsRouter from "./routes/spotify-songs";
 import spotifyPlayerRouter from "./routes/spotify-player-routes";
 import translateRouter from "./routes/translationRoutes";
+import { connectRedis } from "./util/setupRedis";
 
 const main = () => {
   const app = express();
@@ -16,6 +17,8 @@ const main = () => {
   );
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  connectRedis();
 
   const PORT = accessEnv("PORT", 4000);
 

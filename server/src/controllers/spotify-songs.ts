@@ -8,11 +8,14 @@ const { Words, Playlists, db } = require("../interfaces/firebase");
 import { getDoc, doc, getDocs, where, query, setDoc } from "firebase/firestore";
 import accessEnv from "../util/accessEnv";
 import axios from "axios";
+import { getFromCache } from "../util/setupRedis";
 const lyricsFinder = require("lyrics-finder");
 const { translate } = require("bing-translate-api");
 
 const CLIENT_ID = accessEnv("CLIENT_ID");
 const CLIENT_SECRET = accessEnv("CLIENT_SECRET");
+
+const spotifyLimit = pLimit(1);
 
 type song = {
   title: string;
@@ -60,6 +63,9 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
   const length = req.query.length;
   const genre = req.query.genre;
   const email = req.query.email;
+  console.log("starting a playlist");
+
+  res.send("OK");
 
   const scrapperDirectory = path.resolve(
     process.cwd(),
@@ -86,6 +92,7 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
   const playlistLength = parseInt(length?.toString() ?? "10");
 
   const wordsToUse = wordsList
+    .reverse()
     .slice(0, learnedSoFar + playlistLength)
     .filter((word: string) => !learnedWordsArray.includes(word))
     .slice(0, playlistLength);
@@ -146,17 +153,7 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
     });
 
     console.log("playlist ready");
-
-    res.json({
-      id: email + language + playlistIndex,
-      index: playlistIndex,
-      activeCourse: email + language,
-      songs: foundSongs,
-      completionPercentage: 0,
-      language: language,
-      userMail: email,
-      youtubeLink: youtubeLink,
-    });
+    //gun js playlist ready
   });
 };
 
@@ -168,26 +165,30 @@ const getSong = async (
   genre?: string,
   limit?: number
 ) => {
-  return await spotifyApi
-    .searchTracks(genre ? `${word} genre:${genre}` : `${word}`, {
-      market: language,
-      limit: limit ?? 1,
-    })
-    .then(async (res) => {
-      const track = (res as any).body.tracks.items[0];
-      const nextTracks = (res as any).body.tracks.items.slice(1);
+  return await getFromCache(
+    `search_tracks_${word}_${language}_${limit}_${genre}`,
+    async () =>
+      await spotifyLimit(() =>
+        spotifyApi.searchTracks(genre ? `${word} genre:${genre}` : `${word}`, {
+          market: language,
+          limit: limit ?? 1,
+        })
+      )
+  ).then(async (res) => {
+    const track = (res as any).body.tracks.items[0];
+    const nextTracks = (res as any).body.tracks.items.slice(1);
 
-      return await handleSong(
-        track,
-        usedSongs,
-        spotifyApi,
-        word,
-        language,
-        limit,
-        nextTracks,
-        genre
-      );
-    });
+    return await handleSong(
+      track,
+      usedSongs,
+      spotifyApi,
+      word,
+      language,
+      limit,
+      nextTracks,
+      genre
+    );
+  });
 };
 
 const handleSong = async (
@@ -223,14 +224,30 @@ const handleSong = async (
         limit,
         nextTracks.slice(1)
       );
-    return await getSong(
-      spotifyApi,
-      word,
-      language,
-      usedSongs,
-      undefined,
-      (limit ?? 0) + 10
-    );
+    return new Promise<song>((res) => {
+      setTimeout(
+        async () =>
+          res(
+            await getSong(
+              spotifyApi,
+              word,
+              language,
+              usedSongs,
+              undefined,
+              (limit ?? 0) + 10
+            )
+          ),
+        1000
+      );
+    });
+    //return await getSong(
+    //  spotifyApi,
+    //  word,
+    //  language,
+    //  usedSongs,
+    //  undefined,
+    //  (limit ?? 0) + 10
+    //);
   };
 
   if (songWasInUse()) {
@@ -238,8 +255,9 @@ const handleSong = async (
     return await fallback();
   }
 
-  const textFeatures = await spotifyApi.getAudioFeaturesForTrack(
-    track.id ?? ""
+  const textFeatures = await getFromCache(
+    "track_af_" + track.id,
+    async () => await spotifyApi.getAudioFeaturesForTrack(track.id ?? "")
   );
 
   const songNotSpeachyEnough = textFeatures.body.speechiness < 0.01;
@@ -258,6 +276,7 @@ const handleSong = async (
   const songLanguageCorrect = await checkSongsLanguage(lyrics, language);
   if (!songLanguageCorrect) {
     console.log("song in wrong language!! fetching another one");
+    console.log(word);
     return await fallback();
   }
   const youtubeId = await getYoutubeId(artist, title);
@@ -316,14 +335,28 @@ const getYoutubeId = async (artist: string, track: string) => {
 };
 
 const getSongLyrics = async (artist: string, title: string) => {
-  const lyrics = await lyricsFinder(artist, title);
+  const lyrics = await getFromCache(
+    artist + title,
+    async () => await lyricsFinder(artist, title)
+  );
   return lyrics;
 };
 
 const checkSongsLanguage = async (lyrics: string, expectedLanguage: string) => {
   const sampleToTranslate = decodeURI(lyrics).slice(0, 100);
-  const translation = await translate(sampleToTranslate, null, "en", false);
+  const translation = await getFromCache(
+    sampleToTranslate,
+    async () => await translate(sampleToTranslate, null, "en", false)
+  );
   const actualLanguage = translation.language.from;
+
+  console.log(
+    actualLanguage.toLowerCase(),
+    " ",
+    expectedLanguage.toLowerCase()
+  );
+  if (expectedLanguage.toLowerCase() === "dk")
+    return actualLanguage.toLowerCase() === "da";
   return actualLanguage.toLowerCase() === expectedLanguage.toLowerCase();
 };
 
