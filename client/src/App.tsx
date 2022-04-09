@@ -10,17 +10,19 @@ import HeaderMain from './mantine/HeaderMain';
 import Auth from './mantine/SpotifyAuth';
 import { useAuthContext } from './contexts/AuthContextProvider';
 import FallbackPage from './mantine/FallbackPage';
+import { useStateContext } from './contexts/StateContextProvider';
 
 function App() {
 
   const { isLoggedIn } = useAuthContext()
+  const { backgroundImage } = useStateContext()
 
   const theme = useMantineTheme()
 
   return (
     <div >
       <AppShell
-        style={{ color: 'aliceblue', backgroundColor: theme.colors.dark[4] }}
+        style={{ color: 'aliceblue', backgroundColor: theme.colors.dark[4], backgroundImage: `url(${backgroundImage})` }}
         navbarOffsetBreakpoint="sm"
         fixed
         header={

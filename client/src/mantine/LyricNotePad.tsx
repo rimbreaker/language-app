@@ -1,5 +1,6 @@
-import React, { useReducer, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import { Paper, TextInput, Text } from '@mantine/core'
+import { useFirebaseContext } from '../contexts/FireBaseContextProvider'
 
 function translationReducer(state: any, action: any) {
 
@@ -16,16 +17,28 @@ function translationReducer(state: any, action: any) {
                 }
             }
         }
+        case 'FULL_IMPORT': {
+            return { ...state, ...action.payload }
+        }
         default: {
             return state
         }
     }
 }
-const LyricNotePad = ({ lyrics, rows, setTranslatorInput, backupId }: { lyrics: string, rows: number, setTranslatorInput: any, backupId: string }) => {
+const LyricNotePad = ({ lyrics, rows, setTranslatorInput, backupId, setIsReadyToBeSaved }: { lyrics: string, rows: number, setTranslatorInput: any, backupId: string, setIsReadyToBeSaved: any }) => {
+    const { translation } = useFirebaseContext()
 
     const [translationState, dispatch] = useReducer(translationReducer, JSON.parse(localStorage.getItem(backupId) ?? '{}'))
 
     const [isOver, setIsOver] = useState(false)
+
+    useEffect(() => {
+        console.log(translation?.songId, backupId)
+        if (translation && translation?.songId === backupId && JSON.stringify(translationState) !== JSON.stringify(translation.lyrics)) {
+            console.log('filling out')
+            dispatch({ type: 'FULL_IMPORT', payload: translation.lyrics })
+        }
+    }, [translation, backupId])
 
     const selectionHandler = () => {
         if (isOver) {
@@ -35,9 +48,19 @@ const LyricNotePad = ({ lyrics, rows, setTranslatorInput, backupId }: { lyrics: 
             setTranslatorInput(selectedText)
         }
     }
-    const saveBackup = () => localStorage.setItem(backupId, JSON.stringify(translationState))
-
-
+    const saveBackup = () => {
+        if (JSON.stringify(translationState) !== JSON.stringify(translation.lyrics)) localStorage.setItem(backupId, JSON.stringify(translationState))
+    }
+    const checkIfReadyToBeSaved = () => {
+        console.log(Object.keys(translationState).length, lyrics.split('\n').filter(line => line.length > 0).length)
+        if (Object.keys(translationState).length === lyrics.split('\n').filter(line => line.length > 0).length) {
+            setIsReadyToBeSaved(true)
+        }
+    }
+    const dispatchWithCheck = (value: any) => {
+        checkIfReadyToBeSaved();
+        dispatch(value)
+    }
     return (
         <Paper>
             {lyrics.split('\n').filter(line => line.length > 0).map((lyricLine, index) => {
@@ -47,7 +70,7 @@ const LyricNotePad = ({ lyrics, rows, setTranslatorInput, backupId }: { lyrics: 
                             onMouseUp={selectionHandler} onMouseEnter={() => setIsOver(true)} onMouseLeave={() => setIsOver(false)}
                             style={{ textAlign: 'center', whiteSpace: "pre" }}
                         >{lyricLine}</Text>
-                        <SingleLineHolder saveBackup={saveBackup} initValue={translationState} dispatch={dispatch} rows={rows} index={index} />
+                        <SingleLineHolder saveBackup={saveBackup} initValue={translationState} dispatch={dispatchWithCheck} rows={rows} index={index} />
                     </div>
                 )
             })}

@@ -21,7 +21,7 @@ const calculateCompletion = (playlist: any) => {
 const CourseView = () => {
 
     const { playlists, fetchPlaylists, setSinglePlaylist, setPlaylists, deleteCourse } = useFirebaseContext()
-    const { createPlaylist, courseLanguage, setCourseLanguage } = useStateContext()
+    const { createPlaylist, courseLanguage, setCourseLanguage, handleBackground } = useStateContext()
     const { currentUser, playlistQuery } = useAuthContext()
 
     useEffect(() => {
@@ -46,6 +46,7 @@ const CourseView = () => {
         //   else {
         //       fetchPlaylists(`${currentUser.email}${courseLanguage}`)
         //   }
+        handleBackground(false)
     }, [courseLanguage])
 
     const [daysAmount, setDaysAmount] = useState(10)

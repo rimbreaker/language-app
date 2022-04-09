@@ -20,13 +20,13 @@ const cacheFor1Day = async (key: string, value: any) => {
 };
 
 const getFromCache = async (key: string, fallback: (...a: any) => any) => {
-  if (await client.exists("CACHE_" + key)) {
-    const cachedValue = await client.get("CACHE_" + key);
+  if (await client.exists(key)) {
+    const cachedValue = await client.get(key);
     if (cachedValue![0] === "{") return JSON.parse(cachedValue as string);
     else return cachedValue;
   } else {
     const returnValue = await fallback();
-    cacheFor1Day("CACHE_" + key, JSON.stringify(returnValue));
+    cacheFor1Day(key, JSON.stringify(returnValue));
     return returnValue;
   }
 };

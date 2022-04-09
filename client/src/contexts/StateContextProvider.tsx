@@ -1,12 +1,23 @@
 import axios from 'axios';
 import React, { createContext, useContext, useState } from 'react';
 import encoding from '../encoding.json'
+import completeImagesUrls from '../imagesUrls.json'
 
 const StateContext = createContext<any>('');
 
 export const StateContextProvider = ({ children }: any) => {
     const [courseLanguage, setCourseLanguage] = useState<any>()
     const [navbarOpen, setNavbarOpen] = useState(false)
+    const [backgroundImage, setBackgroundImage] = useState('')
+
+    const handleBackground = (hasBackground: boolean) => {
+
+        const url = (completeImagesUrls as string[])[parseInt((Math.random() * (completeImagesUrls as string[]).length).toString())]
+        if (hasBackground)
+            setBackgroundImage(url)
+        else
+            setBackgroundImage('')
+    }
 
     const ensureLanguageByPlaylist = () => {
         const url = window.location.href
@@ -37,6 +48,8 @@ export const StateContextProvider = ({ children }: any) => {
     return (
         <StateContext.Provider
             value={{
+                handleBackground,
+                backgroundImage,
                 navbarOpen,
                 setNavbarOpen,
                 fetchTranslation,

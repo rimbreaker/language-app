@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { ActionIcon, Grid, ScrollArea, MediaQuery, AspectRatio, Checkbox, Space, Title } from '@mantine/core'
+import React, { useEffect, useState } from 'react'
+import { ActionIcon, Grid, ScrollArea, MediaQuery, AspectRatio, Space, Title, Button } from '@mantine/core'
 import Translator from './Translator'
 import SpotifyLogin from './SpotifyLogin'
 import SpotifyPlayer from './SpotifyPlayer'
@@ -15,14 +15,20 @@ const SongView = () => {
 
     const { t } = useTranslation()
     const [translatorInput, setTranslatorInput] = useState('')
-    const { currentSong, fetchCurrentSong, singlePlaylist,
+    const { currentSong,
+        fetchCurrentSong,
+        singlePlaylist,
         markSongAsTranslated,
-        unmarkTranslation } = useFirebaseContext()
+        translation, loadingTranslation,
+        fetchTranslation
+    } = useFirebaseContext()
 
-    const { accessToken } = useAuthContext()
-    const { ensureLanguageByPlaylist, setCourseLanguage, courseLanguage } = useStateContext()
+    const { accessToken, currentUser } = useAuthContext()
+    const { ensureLanguageByPlaylist, setCourseLanguage, courseLanguage, handleBackground } = useStateContext()
 
     const history = useHistory()
+
+    const [isReadyToBeSaved, setIsReadyToBeSaved] = useState(false)
 
     useEffect(() => {
 
@@ -31,14 +37,17 @@ const SongView = () => {
             history.push('/')
         } if (!(currentSong?.lyrics ?? false) || currentSong.youtubeId !== songIdFromUrl) {
             if (songIdFromUrl) {
-                fetchCurrentSong(songIdFromUrl)
+                fetchCurrentSong(songIdFromUrl);
+                fetchTranslation(songIdFromUrl, currentUser)
             }
             else {
                 history.push('/')
             }
         }
-        ensureLanguage()
+        ensureLanguage();
     }, [currentSong])
+
+    useEffect(() => handleBackground(translation?.songId === currentSong?.youtubeId), [translation, currentSong])
 
     const ensureLanguage = () => {
         ensureLanguageByPlaylist()
@@ -48,12 +57,6 @@ const SongView = () => {
     }
 
     const playlistLink = new URLSearchParams(window.location.search).get("playlist")
-
-    const handleTranslationMark = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.target.checked ? markSongAsTranslated(currentSong?.youtubeId, (singlePlaylist?.id ?? playlistLink)) :
-            unmarkTranslation(currentSong?.youtubeId, (singlePlaylist?.id ?? playlistLink))
-    }
-
     return (
         <>
             {playlistLink && <ActionIcon
@@ -70,7 +73,7 @@ const SongView = () => {
                         {`${currentSong?.artist ?? ''} - ${currentSong?.title ?? ''}`}
                     </Title>
                     <ScrollArea type='always' offsetScrollbars style={{ height: '70vh' }}>
-                        <LyricNotePad backupId={currentSong?.youtubeId ?? ''} rows={2} lyrics={currentSong?.lyrics ?? ''} setTranslatorInput={setTranslatorInput} />
+                        {!loadingTranslation && <LyricNotePad setIsReadyToBeSaved={setIsReadyToBeSaved} backupId={currentSong?.youtubeId ?? ''} rows={2} lyrics={currentSong?.lyrics ?? ''} setTranslatorInput={setTranslatorInput} />}
                     </ScrollArea>
                 </Grid.Col>
                 <Grid.Col span={4}   >
@@ -95,9 +98,12 @@ const SongView = () => {
                                 />
                             </AspectRatio>
                             <Space h='xs' />
-                            <Checkbox onChange={handleTranslationMark} label={t("song.markReady")} styles={{
-                                input: { backgroundColor: 'aliceBlue' },
-                            }} />
+                            {
+                                translation?.songId !== currentSong?.youtubeId &&
+                                <Button
+                                    disabled={!isReadyToBeSaved}
+                                    onClick={() => markSongAsTranslated(currentSong?.youtubeId, (singlePlaylist?.id ?? playlistLink))}
+                                >{t("song.markReady")}</Button>}
                         </>
                     </MediaQuery>
                 </Grid.Col>

@@ -3,6 +3,7 @@ import { initializeApp } from 'firebase/app'
 import config from '../config.env.json'
 import { getAuth } from 'firebase/auth';
 import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, increment } from 'firebase/firestore';
+import axios from 'axios';
 
 const firebaseConfig = {
     apiKey: config.apiKey,
@@ -29,6 +30,7 @@ export const FirebaseContextProvider = ({ children }: any) => {
     const [singlePlaylist, setSinglePlaylist] = useState<any>()
     const [currentSong, setCurrentSong] = useState<any>()
     const [translation, setTranslation] = useState<any>()
+    const [loadingTranslation, setLoadingTranslation] = useState(true)
     const [courses, setCourses] = useState<any>()
 
 
@@ -70,7 +72,7 @@ export const FirebaseContextProvider = ({ children }: any) => {
         setPlaylists(fetchedPlaylists)
     }
 
-    const fetchCurrentSong = async (songId: string, playlistId?: string) => {
+    const fetchCurrentSong = async (songId: string) => {
         if ((currentSong?.youtubeId ?? '') === songId) {
             return currentSong
         }
@@ -83,26 +85,47 @@ export const FirebaseContextProvider = ({ children }: any) => {
         }
     }
 
+    const fetchTranslation = async (songId: string, user: any) => {
+        setLoadingTranslation(true)
+        if ((translation?.songId ?? '') === songId && (translation?.userId ?? '') === user.email) {
+            setLoadingTranslation(false)
+            return currentSong
+        }
+
+        const fethcedTranslationDoc = await getDoc(doc(db, 'translations', `${songId}[${user.email}`))
+        const fetchedTranslation = await fethcedTranslationDoc.data();
+        if (fetchedTranslation) {
+            setTranslation(fetchedTranslation)
+            setLoadingTranslation(false)
+            return fetchedTranslation
+        }
+
+        setLoadingTranslation(false)
+        return false
+    }
+
     const markSongAsTranslated = async (songId: string, playlistId: string) => {
 
         const lyrics = JSON.parse(localStorage.getItem(songId) ?? '{}')
 
         updateDoc(doc(db, 'playlists', playlistId), { [songId]: true })
-        setDoc(doc(db, 'translations', songId + '[' + playlistId.split('[')[0]), { songId, playlistId, lyrics, userId: playlistId.split('-')[0] })
-        updateDoc(doc(db, 'activeCourses', playlistId.split('[').slice(0, 2).join("")), { wordsLearned: increment(currentSong.lyrics.split(" ").length) })
+        setDoc(doc(db, 'translations', songId + '[' + playlistId.split('[')[0]), { songId, playlistId, lyrics, userId: playlistId.split('[')[0] })
+        axios.post('http://localhost:4000/completesong/', {
+            songName: currentSong.title + currentSong.artist
+            , lyrics: currentSong.lyrics
+                .replaceAll('\n', ' ')
+                .replaceAll('\'', ' ')
+                .replaceAll(',', ' ')
+                .replaceAll('.', ' ')
+                .replaceAll('?', ' ')
+                .replaceAll('!', ' ')
+                .replaceAll('-', ' ')
+                .split(" "),
+            courseId: playlistId.split('[').slice(0, 2).join("")
+        })
 
         setSinglePlaylist((prev: any) => ({ ...prev, [songId]: true }))
-        setTranslation({ songId, playlistId, lyrics, userId: playlistId.split('-')[0] })
-    }
-
-    const unmarkTranslation = async (songId: string, playlistId: string) => {
-
-        updateDoc(doc(db, 'playlists', playlistId), { [songId]: false })
-        deleteDoc(doc(db, 'translations', songId + '[' + playlistId.split('[')[0]))
-        updateDoc(doc(db, 'activeCourses', playlistId.split('[').slice(0, 2).join("")), { wordsLearned: increment(-currentSong.lyrics.split(" ").length) })
-
-        setSinglePlaylist((prev: any) => ({ ...prev, [songId]: undefined }))
-        setTranslation(undefined)
+        setTranslation({ songId, playlistId, lyrics, userId: playlistId.split('[')[0] })
     }
 
     const createNewCourse = async (user: any, language: any) => {
@@ -123,6 +146,7 @@ export const FirebaseContextProvider = ({ children }: any) => {
     return (
         <FirebaseContext.Provider
             value={{
+                loadingTranslation,
                 playlistsRef,
                 deleteCourse,
                 fetchCourses,
@@ -138,8 +162,9 @@ export const FirebaseContextProvider = ({ children }: any) => {
                 currentSong,
                 setCurrentSong,
                 fetchCurrentSong,
+                fetchTranslation,
+                translation,
                 markSongAsTranslated,
-                unmarkTranslation,
                 createNewCourse
             }}
         >

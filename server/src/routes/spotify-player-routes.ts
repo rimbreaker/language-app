@@ -1,7 +1,10 @@
 import axios from "axios";
 import express from "express";
 import SpotifyWebApi from "spotify-web-api-node";
-import { getSongsFromNextWordsToLearn } from "../controllers/spotify-songs";
+import {
+  completeSong,
+  getSongsFromNextWordsToLearn,
+} from "../controllers/spotify-songs";
 import accessEnv from "../util/accessEnv";
 const lyricsFinder = require("lyrics-finder");
 
@@ -52,8 +55,6 @@ router.get("/search", (_req, res) => {
   });
 });
 
-router.get("/createplaylist/:lang", getSongsFromNextWordsToLearn);
-
 router.post("/login", (req, res) => {
   const code = req.body.code;
   const redirectUri = req.body.redirect;
@@ -102,5 +103,9 @@ router.get("/youtube", async (req, res) => {
 
   res.json({ firstResultID });
 });
+
+router.get("/createplaylist/:lang", getSongsFromNextWordsToLearn);
+
+router.post("/completesong", completeSong);
 
 export default router;

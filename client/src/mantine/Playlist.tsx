@@ -7,10 +7,12 @@ import { useFirebaseContext } from '../contexts/FireBaseContextProvider';
 import { useAuthContext } from '../contexts/AuthContextProvider';
 import { useTranslation } from 'react-i18next'
 import completeImagesUrls from '../imagesUrls.json'
+import { useStateContext } from '../contexts/StateContextProvider';
 
 const Playlist = () => {
     const { accessToken, createSpotifyPlaylist, deletePlaylist } = useAuthContext()
     const { fetchSinglePlaylist, singlePlaylist } = useFirebaseContext()
+    const { handleBackground } = useStateContext()
     const [modalOpen, setModalOpen] = useState(false)
     const [playlist, setPlaylist] = useState<any>()
     const { t } = useTranslation()
@@ -30,7 +32,7 @@ const Playlist = () => {
                     setPlaylist(pl);
                 }
             )
-        }
+        };
     }, [singlePlaylist])
 
     useEffect(() => {
@@ -50,6 +52,11 @@ const Playlist = () => {
 
     const uniquePlaylist = playlist ? [...(new Set(playlist.songs.map((song: any) => song.youtubeId)) as any)] : ['1']
     const calculateCompletion = () => (completeSongs?.length ?? 0) > 0 ? (((completeSongs!.length) / uniquePlaylist?.length) * 100).toFixed(0) : 0
+
+    useEffect(() => {
+        if (completeSongs && uniquePlaylist)
+            handleBackground(calculateCompletion() === '100')
+    }, [completeSongs, uniquePlaylist])
 
     return (
         <  >

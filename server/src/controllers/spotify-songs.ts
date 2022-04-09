@@ -5,7 +5,16 @@ import path from "path";
 import { searchSong } from "../interfaces/spotify";
 import SpotifyWebApi from "spotify-web-api-node";
 const { Words, Playlists, db } = require("../interfaces/firebase");
-import { getDoc, doc, getDocs, where, query, setDoc } from "firebase/firestore";
+import {
+  getDoc,
+  doc,
+  getDocs,
+  where,
+  query,
+  setDoc,
+  updateDoc,
+  increment,
+} from "firebase/firestore";
 import accessEnv from "../util/accessEnv";
 import axios from "axios";
 import { getFromCache } from "../util/setupRedis";
@@ -35,16 +44,13 @@ const return30songs = async (req: Request, res: Response) => {
   const countryCode = req.params.countryCode;
   const genre = req.query.genre;
 
-  const scrapperDirectory = path.resolve(
-    process.cwd(),
-    "../word-list-scrapper"
-  );
+  const wordLisrtDirectory = path.resolve(process.cwd(), "./src/wordLists");
 
   const limit = pLimit(15);
 
   const wordsList: string[] = JSON.parse(
     fs
-      .readFileSync(path.join(scrapperDirectory, `${countryCode}1000.json`))
+      .readFileSync(path.join(wordLisrtDirectory, `${countryCode}1000.json`))
       .toString()
   );
   const top30Words = wordsList.slice(0, 30);
@@ -79,9 +85,7 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
 
   const wordObject = (await getDoc(doc(Words, `${email}${language}`))).data();
 
-  const learnedSoFar = Object.values(wordObject || {}).length;
-
-  const learnedWordsArray = Object.values(wordObject || {});
+  const learnedWordsArray = Object.keys(wordObject || {});
 
   const wordsList: string[] = JSON.parse(
     fs
@@ -93,8 +97,13 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
 
   const wordsToUse = wordsList
     .reverse()
-    .slice(0, learnedSoFar + playlistLength)
-    .filter((word: string) => !learnedWordsArray.includes(word))
+    .filter((wrd) => !learnedWordsArray.includes(wrd))
+    .slice(0, playlistLength);
+
+  const fallbackWords = wordsList
+    .reverse()
+    .filter((wrd) => !learnedWordsArray.includes(wrd))
+    .filter((wrd) => !wordsToUse.includes(wrd))
     .slice(0, playlistLength);
 
   const playlistsOfTheCourse = (
@@ -109,14 +118,22 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
 
   const usedSongs = playlistsOfTheCourse
     .map((playlist) => playlist.songs)
-    .flat();
+    .flat()
+    .map((song) => ({ title: song.title, artist: song.artist }));
 
   spotifyApi.clientCredentialsGrant().then(async (data) => {
     spotifyApi.setAccessToken(data.body.access_token);
 
     const foundSongs = await Promise.all(
       wordsToUse.map((word) =>
-        getSong(spotifyApi, word, language, usedSongs, genre && String(genre))
+        getSong(
+          spotifyApi,
+          word,
+          language,
+          usedSongs,
+          fallbackWords,
+          genre && String(genre)
+        )
       )
     );
     const playlistIndex = playlistsOfTheCourse.length + 1;
@@ -162,9 +179,10 @@ const getSong = async (
   word: string,
   language: string,
   usedSongs: any[],
+  fallbackWords: string[],
   genre?: string,
   limit?: number
-) => {
+): Promise<song> => {
   return await getFromCache(
     `search_tracks_${word}_${language}_${limit}_${genre}`,
     async () =>
@@ -175,18 +193,29 @@ const getSong = async (
         })
       )
   ).then(async (res) => {
-    const track = (res as any).body.tracks.items[0];
-    const nextTracks = (res as any).body.tracks.items.slice(1);
+    if ((res as any).body.tracks.items.length > 0) {
+      const track = (res as any).body.tracks.items[0];
+      const nextTracks = (res as any).body.tracks.items.slice(1);
 
-    return await handleSong(
-      track,
-      usedSongs,
+      return await handleSong(
+        track,
+        usedSongs,
+        spotifyApi,
+        word,
+        language,
+        fallbackWords,
+        limit,
+        nextTracks,
+        genre
+      );
+    }
+
+    return await getSong(
       spotifyApi,
-      word,
+      fallbackWords[0],
       language,
-      limit,
-      nextTracks,
-      genre
+      usedSongs,
+      fallbackWords.slice(1)
     );
   });
 };
@@ -197,20 +226,20 @@ const handleSong = async (
   spotifyApi: SpotifyWebApi,
   word: string,
   language: string,
+  fallbackWords: string[],
   limit?: number,
   nextTracks?: any,
   genre?: string
 ): Promise<song> => {
-  const title = track.name;
-  const artist = track.artists[0].name;
-  const allArtists = track.artists.reduce((prev: any, curr: any) => {
-    return prev + " " + curr.name;
-  }, "");
+  const title = track?.name || "string";
+  const artist = track?.artists?.[0]?.name ?? "string";
+  const allArtists =
+    track?.artists?.reduce((prev: any, curr: any) => {
+      return prev + " " + curr.name;
+    }, "") ?? "string";
 
   const songWasInUse = () => {
-    return usedSongs
-      .map((song) => ({ title: song.title, artist: song.artist }))
-      .includes({ title, artist });
+    return usedSongs.includes({ title, artist });
   };
 
   const fallback = async () => {
@@ -221,6 +250,7 @@ const handleSong = async (
         spotifyApi,
         word,
         language,
+        fallbackWords,
         limit,
         nextTracks.slice(1)
       );
@@ -233,6 +263,7 @@ const handleSong = async (
               word,
               language,
               usedSongs,
+              fallbackWords,
               undefined,
               (limit ?? 0) + 10
             )
@@ -251,7 +282,7 @@ const handleSong = async (
   };
 
   if (songWasInUse()) {
-    console.log("song wrong!! fetching another one");
+    console.log("song already used!! fetching another one");
     return await fallback();
   }
 
@@ -276,7 +307,6 @@ const handleSong = async (
   const songLanguageCorrect = await checkSongsLanguage(lyrics, language);
   if (!songLanguageCorrect) {
     console.log("song in wrong language!! fetching another one");
-    console.log(word);
     return await fallback();
   }
   const youtubeId = await getYoutubeId(artist, title);
@@ -300,6 +330,7 @@ const handleSong = async (
     lyrics,
   });
 
+  usedSongs.push({ title, artist });
   return {
     title: String(title),
     artist: String(artist),
@@ -350,14 +381,45 @@ const checkSongsLanguage = async (lyrics: string, expectedLanguage: string) => {
   );
   const actualLanguage = translation.language.from;
 
-  console.log(
-    actualLanguage.toLowerCase(),
-    " ",
-    expectedLanguage.toLowerCase()
-  );
   if (expectedLanguage.toLowerCase() === "dk")
     return actualLanguage.toLowerCase() === "da";
   return actualLanguage.toLowerCase() === expectedLanguage.toLowerCase();
 };
 
-export { return30songs, getSongsFromNextWordsToLearn };
+const completeSong = async (req: Request, res: Response) => {
+  const { songName, lyrics, courseId } = req.body;
+  const wordLisrtDirectory = path.resolve(process.cwd(), "./src/wordLists");
+
+  const wordsToLearnList: string[] = JSON.parse(
+    fs
+      .readFileSync(
+        path.join(wordLisrtDirectory, `${courseId.slice(-2)}1000.json`)
+      )
+      .toString()
+  );
+
+  const wordObject = (await getDoc(doc(Words, courseId))).data();
+  const wordArray = wordObject ? Object.keys(wordObject) : [];
+  const unknownWords = lyrics.filter(
+    (wrd: string) => !wordArray.includes(wrd.toLowerCase())
+  );
+  const newlyLearnedWords = unknownWords.filter((wrd: string) =>
+    wordsToLearnList.includes(wrd.toLowerCase())
+  );
+
+  await setDoc(doc(Words, courseId), {
+    ...wordObject,
+    ...newlyLearnedWords.reduce(
+      (prev: Record<string, boolean>, curr: string) => {
+        return { ...prev, [curr]: true };
+      },
+      {}
+    ),
+  });
+  await updateDoc(doc(db, "activeCourses", courseId), {
+    wordsLearned: increment(newlyLearnedWords.length),
+  });
+  res.send("OK");
+};
+
+export { return30songs, getSongsFromNextWordsToLearn, completeSong };
