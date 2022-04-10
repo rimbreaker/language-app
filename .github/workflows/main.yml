@@ -1,0 +1,26 @@
+name: Deploy frontend
+
+on:
+  push:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  Build-n-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Deploy Docker Image to Heroku
+        uses: techmmunity/docker-heroku-deploy@v1.0.0
+        with:
+          email: "janekkacperczyk@gmail.com"
+          api_key: ${{secrets.HEROKU_API_KEY}}
+          app_name: "lyrson-client"
+          dockerfile_path: "./client"
+          dockerfile_name: "dockerfile"
