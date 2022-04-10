@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: client
+        working-directory: ./client
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -22,4 +22,5 @@ jobs:
           email: "janekkacperczyk@gmail.com"
           api_key: ${{secrets.HEROKU_API_KEY}}
           app_name: "lyrson-client"
+          dockerfile_path: "./client"
           dockerfile_name: "dockerfile"
