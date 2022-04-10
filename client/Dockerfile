@@ -8,5 +8,5 @@ FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 COPY --from=build /app/build .
-#COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
-CMD sed -i -e 's/$PORT/'"$PORT"'/g' /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'
+EXPOSE 80
+ENTRYPOINT ["nginx", "-g", "daemon", "off",";"]
