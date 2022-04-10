@@ -23,7 +23,7 @@ services:
     depends_on:
       - redis
     environment:
-      - REDIS_HOSTS=redis://@redis:6379
+      - REDIS_URL=redis://@redis:6379
     ports: 
       - 4000:4000
 
