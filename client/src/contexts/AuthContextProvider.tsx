@@ -39,7 +39,7 @@ export const AuthContextProvider = ({ children }: any) => {
         if (!refreshToken || !expiresIn) return
         const interval = setInterval(() => {
             axios
-                .post("http://localhost:4000/refresh", {
+                .post("https://lyrson-server.herokuapp.com/refresh", {
                     refreshToken,
                 })
                 .then(res => {

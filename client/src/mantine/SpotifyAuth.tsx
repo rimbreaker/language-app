@@ -16,8 +16,8 @@ const Auth = () => {
     useEffect(() => {
         if (!accessToken) {
             axios
-                .post("http://localhost:4000/login", {
-                    code, redirect: "http://localhost:3000/auth"
+                .post("https://lyrson-server.herokuapp.com/login", {
+                    code, redirect: "https://lyrson-client.herokuapp.com/auth"
                 })
                 .then(res => {
                     setAccessToken(res.data.accessToken)

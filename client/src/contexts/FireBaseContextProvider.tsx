@@ -110,7 +110,7 @@ export const FirebaseContextProvider = ({ children }: any) => {
 
         updateDoc(doc(db, 'playlists', playlistId), { [songId]: true })
         setDoc(doc(db, 'translations', songId + '[' + playlistId.split('[')[0]), { songId, playlistId, lyrics, userId: playlistId.split('[')[0] })
-        axios.post('http://localhost:4000/completesong/', {
+        axios.post('https://lyrson-server.herokuapp.com/completesong/', {
             songName: currentSong.title + currentSong.artist
             , lyrics: currentSong.lyrics
                 .replaceAll('\n', ' ')

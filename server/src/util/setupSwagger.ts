@@ -14,7 +14,10 @@ const setupSwagger = (app: Express) => {
       contact: {
         name: "do not contact me",
       },
-      servers: ["http://localhost:" + accessEnv("PORT", 4000)],
+      servers: [
+        "http://localhost:" + accessEnv("PORT", 4000),
+        "https://lyrson-server.herokuapp.com",
+      ],
     },
     apis: ["src/routes/*.ts"],
   };

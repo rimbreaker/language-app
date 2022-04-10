@@ -34,12 +34,12 @@ export const StateContextProvider = ({ children }: any) => {
     }
 
     const fetchTranslation = async (phrase: string, from?: string, to?: string) => {
-        return await axios({ url: `http://localhost:4000/translate/${phrase}?from=${from}&to=${to}` })
+        return await axios({ url: `https://lyrson-server.herokuapp.com/translate/${phrase}?from=${from}&to=${to}` })
             .then((res) => res.data)
     }
 
     const createPlaylist = async (language: string, email: string, length?: number, genre?: string) => {
-        let requestUrl = `http://localhost:4000/createplaylist/${language}?email=${email}`
+        let requestUrl = `https://lyrson-server.herokuapp.com/createplaylist/${language}?email=${email}`
         if (length) requestUrl += `&length=${length}`
         if (genre) requestUrl += `&genre=${genre}`
         axios.get(requestUrl)
