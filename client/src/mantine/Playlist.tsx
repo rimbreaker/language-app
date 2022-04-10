@@ -8,6 +8,7 @@ import { useAuthContext } from '../contexts/AuthContextProvider';
 import { useTranslation } from 'react-i18next'
 import completeImagesUrls from '../imagesUrls.json'
 import { useStateContext } from '../contexts/StateContextProvider';
+import { extractParamFromHashUrl } from '../util/extractHashUrlParam';
 
 const Playlist = () => {
     const { accessToken, createSpotifyPlaylist, deletePlaylist } = useAuthContext()
@@ -23,7 +24,7 @@ const Playlist = () => {
     const getCompleteSongs = (object: any) => Object.keys(object).filter((key) => playlist.songs.map((song: any) => song.youtubeId).includes(key))
 
     useEffect(() => {
-        const playlistIdFromUrl = new URLSearchParams(window.location.search).get("id");
+        const playlistIdFromUrl = extractParamFromHashUrl("id");
         if (!playlistIdFromUrl && !singlePlaylist)
             history.push("/")
         if (!singlePlaylist || singlePlaylist.id !== playlistIdFromUrl) {

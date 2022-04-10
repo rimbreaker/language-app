@@ -36,7 +36,6 @@ function App() {
           <Switch>
             <Route exact path='/song' component={isLoggedIn ? SongView : FallbackPage} />
             <Route exact path='/courseview' component={isLoggedIn ? CourseView : FallbackPage} />
-            <Route exact path='/courseview' component={isLoggedIn ? CourseView : FallbackPage} />
             <Route exact path='/playlist' component={isLoggedIn ? Playlist : FallbackPage} />
             <Route exact path='/auth' component={Auth} />
             <Route exact path='/' component={LandingPage} />

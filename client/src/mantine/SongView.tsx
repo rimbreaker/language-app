@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
 import { useFirebaseContext } from '../contexts/FireBaseContextProvider'
 import { useStateContext } from '../contexts/StateContextProvider'
+import { extractParamFromHashUrl } from '../util/extractHashUrlParam'
 
 const SongView = () => {
 
@@ -31,7 +32,7 @@ const SongView = () => {
     const [isReadyToBeSaved, setIsReadyToBeSaved] = useState(false)
 
     useEffect(() => {
-        const songIdFromUrl = new URLSearchParams(window.location.search).get("id")
+        const songIdFromUrl = extractParamFromHashUrl("id")
         if (!songIdFromUrl && !currentSong) {
             history.push('/')
         } if (!(currentSong?.lyrics ?? false) || currentSong.youtubeId !== songIdFromUrl) {
@@ -58,7 +59,7 @@ const SongView = () => {
 
     }
 
-    const playlistLink = new URLSearchParams(window.location.search).get("playlist")
+    const playlistLink = extractParamFromHashUrl("playlist")
     return (
         <>
             {playlistLink && <ActionIcon

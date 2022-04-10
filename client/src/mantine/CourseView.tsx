@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuthContext } from '../contexts/AuthContextProvider';
 import encoding from '../encoding.json'
 import { onSnapshot } from 'firebase/firestore';
+import { extractParamFromHashUrl } from '../util/extractHashUrlParam';
 
 const calculateCompletion = (playlist: any) => {
     const songIds: string[] = playlist.songs.map((song: any) => song.youtubeId)
@@ -39,7 +40,7 @@ const CourseView = () => {
 
     useEffect(() => {
         if (!courseLanguage) {
-            const languageFromUrl = new URLSearchParams(window.location.search).get("lang")
+            const languageFromUrl = extractParamFromHashUrl("lang")
             if (languageFromUrl)
                 setCourseLanguage(languageFromUrl)
             else
