@@ -20,15 +20,17 @@ const calculateCompletion = (playlist: any) => {
 
 const CourseView = () => {
 
-    const { playlists, fetchPlaylists, setSinglePlaylist, setPlaylists, deleteCourse } = useFirebaseContext()
+    const { playlists,/* fetchPlaylists,*/ setSinglePlaylist, setPlaylists, deleteCourse, courses } = useFirebaseContext()
     const { createPlaylist, courseLanguage, setCourseLanguage, handleBackground } = useStateContext()
     const { currentUser, playlistQuery } = useAuthContext()
+
+    const currentWordsCounter = courses.find((course: any) => course.language === courseLanguage)?.wordsLearned ?? 0
 
     useEffect(() => {
         onSnapshot(playlistQuery, (snapshot: any) => {
             setPlaylists(snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() })))
         })
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [courseLanguage])
 
 
@@ -47,6 +49,7 @@ const CourseView = () => {
         //       fetchPlaylists(`${currentUser.email}${courseLanguage}`)
         //   }
         handleBackground(false)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [courseLanguage])
 
     const [daysAmount, setDaysAmount] = useState(10)
@@ -146,8 +149,7 @@ const CourseView = () => {
                     </Popover>
                 </Group>
                 <Group>
-                    <Text>0 {t("course.wordsLearned")}</Text>
-                    {/* TODO: add logic here */}
+                    <Text>{currentWordsCounter}/1000 {t("course.wordsLearned")}</Text>
                     <Button
                         color={"violet"}
                         onClick={() => setModalOpen(true)}

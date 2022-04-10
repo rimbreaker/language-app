@@ -36,6 +36,7 @@ const NavbarMain = () => {
 
     useEffect(() => {
         fetchCourses(currentUser)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const languageInputError = () => newCourseLanguageInput && !Object.values(availableLangs).map(({ name }: any) => name).includes(newCourseLanguageInput)

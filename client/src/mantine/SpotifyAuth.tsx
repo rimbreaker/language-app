@@ -1,5 +1,5 @@
-import axios from 'axios'
 import React, { useEffect } from 'react'
+import axios from 'axios'
 //import { useHistory } from 'react-router'
 import { useHistory } from 'react-router'
 import { useAuthContext } from '../contexts/AuthContextProvider'
@@ -36,6 +36,7 @@ const Auth = () => {
                     window.location = ("/" as any)
                 })
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return <></>

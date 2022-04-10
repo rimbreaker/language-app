@@ -31,6 +31,7 @@ export const AuthContextProvider = ({ children }: any) => {
                 photoUrl: googleUser.photoURL
             })
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [googleUser])
 
 

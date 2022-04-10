@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import { initializeApp } from 'firebase/app'
 import config from '../config.env.json'
 import { getAuth } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, increment } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import axios from 'axios';
 
 const firebaseConfig = {
@@ -15,7 +15,7 @@ const firebaseConfig = {
     measurementId: config.measurementId
 };
 
-const app = initializeApp(firebaseConfig)
+initializeApp(firebaseConfig)
 
 const auth = getAuth()
 const db = getFirestore()

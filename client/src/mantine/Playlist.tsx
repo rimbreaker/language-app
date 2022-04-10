@@ -33,12 +33,14 @@ const Playlist = () => {
                 }
             )
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [singlePlaylist])
 
     useEffect(() => {
 
         if (playlist)
             setCompleteSongs(getCompleteSongs(playlist))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playlist])
 
 
@@ -56,6 +58,7 @@ const Playlist = () => {
     useEffect(() => {
         if (completeSongs && uniquePlaylist)
             handleBackground(calculateCompletion() === '100')
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [completeSongs, uniquePlaylist])
 
     return (

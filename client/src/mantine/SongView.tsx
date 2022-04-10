@@ -31,7 +31,6 @@ const SongView = () => {
     const [isReadyToBeSaved, setIsReadyToBeSaved] = useState(false)
 
     useEffect(() => {
-
         const songIdFromUrl = new URLSearchParams(window.location.search).get("id")
         if (!songIdFromUrl && !currentSong) {
             history.push('/')
@@ -45,9 +44,12 @@ const SongView = () => {
             }
         }
         ensureLanguage();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentSong])
 
-    useEffect(() => handleBackground(translation?.songId === currentSong?.youtubeId), [translation, currentSong])
+    useEffect(() => handleBackground(translation?.songId === currentSong?.youtubeId),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [translation, currentSong])
 
     const ensureLanguage = () => {
         ensureLanguageByPlaylist()

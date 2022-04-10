@@ -19,6 +19,7 @@ const Translator = ({ input, setInput }: { input: string, setInput: (a: string) 
     useEffect(() => {
         if (phraseToTranslate.length > 0)
             fetchTranslation(phraseToTranslate, courseLanguage, currentLanuage).then((res: any) => setTranslation(res))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [phraseToTranslate])
 
 

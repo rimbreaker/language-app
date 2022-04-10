@@ -38,6 +38,7 @@ const LyricNotePad = ({ lyrics, rows, setTranslatorInput, backupId, setIsReadyTo
             console.log('filling out')
             dispatch({ type: 'FULL_IMPORT', payload: translation.lyrics })
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [translation, backupId])
 
     const selectionHandler = () => {
