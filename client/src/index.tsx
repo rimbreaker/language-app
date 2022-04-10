@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import { MantineProvider } from '@mantine/core'
 import { StateContextProvider } from './contexts/StateContextProvider';
 import { FirebaseContextProvider } from './contexts/FireBaseContextProvider';
@@ -17,11 +17,11 @@ ReactDOM.render(
       <StateContextProvider>
         <AuthContextProvider>
           <MantineProvider theme={{ colorScheme: 'dark', fontFamily: "sans-serif", headings: { fontFamily: "sans-serif" } }} >
-            <BrowserRouter>
+            <HashRouter>
               <React.StrictMode>
                 <App />
               </React.StrictMode>
-            </BrowserRouter>
+            </HashRouter>
           </MantineProvider>
         </AuthContextProvider>
       </StateContextProvider>

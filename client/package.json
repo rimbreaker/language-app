@@ -2,6 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://lyrson-client.herokuapp.com",
   "dependencies": {
     "@mantine/core": "^4.0.7",
     "@mantine/dates": "^4.0.7",
