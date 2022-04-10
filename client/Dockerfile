@@ -8,4 +8,4 @@ FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 COPY --from=build /app/build .
-ENTRYPOINT [ "nginx","-g","daemon off;" ]
+ENTRYPOINT ["nginx", "-g", "daemon", "off",";"]
