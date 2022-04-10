@@ -73,10 +73,7 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
 
   res.send("OK");
 
-  const scrapperDirectory = path.resolve(
-    process.cwd(),
-    "../word-list-scrapper"
-  );
+  const wordLisrtDirectory = path.resolve(process.cwd(), "./src/wordLists");
 
   const spotifyApi = new SpotifyWebApi({
     clientId: CLIENT_ID,
@@ -89,7 +86,7 @@ const getSongsFromNextWordsToLearn = async (req: Request, res: Response) => {
 
   const wordsList: string[] = JSON.parse(
     fs
-      .readFileSync(path.join(scrapperDirectory, `${language}1000.json`))
+      .readFileSync(path.join(wordLisrtDirectory, `${language}1000.json`))
       .toString()
   );
 
