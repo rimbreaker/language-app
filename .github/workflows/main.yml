@@ -16,7 +16,7 @@ jobs:
       - name: Deploy Docker Image to Heroku
       # You may pin to the exact commit or the version.
       # uses: techmmunity/docker-heroku-deploy@ab0eabb6186da53eabe90b5c0a443404e7659c44
-        uses: techmmunity/docker-heroku-deploy@v1.0.0
+      - uses: techmmunity/docker-heroku-deploy@v1.0.0
         with:
           # Email Linked to your Heroku Account
           email: "janekkacperczyk@gmail.com"
