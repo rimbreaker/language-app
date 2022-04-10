@@ -1,10 +1,10 @@
 import { createClient } from "redis";
 
-const redisAddress = process.env.REDIS_HOSTS;
+const redisAddress = process.env.REDIS_URI;
 const client = createClient(
   redisAddress
     ? {
-        url: `redis://@${redisAddress}`,
+        url: redisAddress,
       }
     : undefined
 );
