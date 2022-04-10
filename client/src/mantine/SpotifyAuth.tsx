@@ -18,7 +18,7 @@ const Auth = () => {
         if (!accessToken) {
             axios
                 .post("https://lyrson-server.herokuapp.com/login", {
-                    code, redirect: "https://lyrson-client.herokuapp.com/#/auth"
+                    code, redirect: "https://lyrson-client.herokuapp.com/auth"
                 })
                 .then(res => {
                     setAccessToken(res.data.accessToken)
