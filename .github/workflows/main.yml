@@ -9,6 +9,9 @@ on:
 jobs:
   Build-n-deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
     steps:
       - name: Checkout
         uses: actions/checkout@v3
