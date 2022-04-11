@@ -69,7 +69,7 @@ export const AuthContextProvider = ({ children }: any) => {
             const haveImages = (images?.length ?? 0) > 0
             const userObject = { displayName: display_name, email }
             setDoc(doc(db, 'usersData', email || "default"), haveImages ? { ...userObject, photoURL: images![0] } : userObject)
-            setCurrentUser({ ...currentUser, ...userObject })
+            setCurrentUser((user) => ({ ...user, ...currentUser, ...userObject }))
         }
     }
 
@@ -80,8 +80,8 @@ export const AuthContextProvider = ({ children }: any) => {
                 setCurrentUser({ ...currentUser, ...(exisitngUser as any) })
             } else {
                 const { photoURL, displayName, email } = user.user
-                updateDoc(doc(db, 'usersData', email || "default"), { photoURL, displayName, email })
-                setCurrentUser({ ...currentUser, ...(exisitngUser as any) })
+                setDoc(doc(db, 'usersData', email || "default"), { photoURL, displayName, email })
+                setCurrentUser((user) => ({ ...user, ...(exisitngUser as any), ...currentUser }))
             }
         })
     }
