@@ -3,7 +3,7 @@ import express from "express";
 import SpotifyWebApi from "spotify-web-api-node";
 import {
   completeSong,
-  getSongsFromNextWordsToLearn,
+  getSongsFromNextWordsToLearn2,
 } from "../controllers/spotify-songs";
 import accessEnv from "../util/accessEnv";
 const lyricsFinder = require("lyrics-finder");
@@ -104,7 +104,7 @@ router.get("/youtube", async (req, res) => {
   res.json({ firstResultID });
 });
 
-router.get("/createplaylist/:lang", getSongsFromNextWordsToLearn);
+router.get("/createplaylist/:lang", getSongsFromNextWordsToLearn2);
 
 router.post("/completesong", completeSong);
 
