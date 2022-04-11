@@ -33,7 +33,6 @@ const LyricNotePad = ({ lyrics, rows, setTranslatorInput, backupId, setIsReadyTo
     const [isOver, setIsOver] = useState(false)
 
     useEffect(() => {
-        console.log(translation?.songId, backupId)
         if (translation && translation?.songId === backupId && JSON.stringify(translationState) !== JSON.stringify(translation.lyrics)) {
             console.log('filling out')
             dispatch({ type: 'FULL_IMPORT', payload: translation.lyrics })
@@ -52,9 +51,10 @@ const LyricNotePad = ({ lyrics, rows, setTranslatorInput, backupId, setIsReadyTo
     const saveBackup = () => {
         if (JSON.stringify(translationState) !== JSON.stringify(translation.lyrics)) localStorage.setItem(backupId, JSON.stringify(translationState))
     }
+    const splitLyrics = lyrics.includes('\\n') ? lyrics.split('\\n') : lyrics.split('\n')
     const checkIfReadyToBeSaved = () => {
-        console.log(Object.keys(translationState).length, lyrics.split('\n').filter(line => line.length > 0).length)
-        if (Object.keys(translationState).length === lyrics.split('\n').filter(line => line.length > 0).length) {
+        console.log(Object.keys(translationState).length, splitLyrics.filter(line => line.length > 0).length)
+        if (Object.keys(translationState).length === splitLyrics.filter(line => line.length > 0).length) {
             setIsReadyToBeSaved(true)
         }
     }
@@ -64,7 +64,7 @@ const LyricNotePad = ({ lyrics, rows, setTranslatorInput, backupId, setIsReadyTo
     }
     return (
         <Paper>
-            {lyrics.split('\n').filter(line => line.length > 0).map((lyricLine, index) => {
+            {splitLyrics.filter(line => line.length > 0).map((lyricLine, index) => {
                 return (
                     <div key={index}>
                         <Text

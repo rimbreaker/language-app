@@ -7,7 +7,6 @@ import config from '../util/getConfig'
 const StateContext = createContext<any>('');
 
 export const StateContextProvider = ({ children }: any) => {
-    console.log(config)
     const [courseLanguage, setCourseLanguage] = useState<any>()
     const [navbarOpen, setNavbarOpen] = useState(false)
     const [backgroundImage, setBackgroundImage] = useState('')

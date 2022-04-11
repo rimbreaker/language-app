@@ -25,7 +25,7 @@ const CourseView = () => {
     const { createPlaylist, courseLanguage, setCourseLanguage, handleBackground } = useStateContext()
     const { currentUser, playlistQuery } = useAuthContext()
 
-    const currentWordsCounter = courses.find((course: any) => course.language === courseLanguage)?.wordsLearned ?? 0
+    const currentWordsCounter = courses?.find((course: any) => course.language === courseLanguage)?.wordsLearned ?? 0
 
     useEffect(() => {
         onSnapshot(playlistQuery, (snapshot: any) => {
