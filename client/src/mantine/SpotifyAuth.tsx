@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import axios from 'axios'
-//import { useHistory } from 'react-router'
 import { useHistory } from 'react-router'
 import { useAuthContext } from '../contexts/AuthContextProvider'
 import { extractParamFromHashUrl } from '../util/extractHashUrlParam'

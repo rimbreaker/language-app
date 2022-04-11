@@ -7,8 +7,9 @@ app.set('port', (process.env.PORT || 3000));
 app.use(express.static(__dirname + '/build'));
 
 app.get('/auth',(req,res)=>{
+  const redirectUrl=req.headers.referer.includes('localhost')?'http://localhost:3000':'https://lyrson-client.herokuapp.com'
   const code=req.query.code
-  res.redirect('http://localhost:3000/#/auth?code='+code)
+  res.redirect(`${redirectUrl}/#/auth?code=`+code)
 })
 
 app.listen(app.get('port'), function() {
