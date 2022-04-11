@@ -19,10 +19,8 @@ import accessEnv from "../util/accessEnv";
 import axios from "axios";
 import { getFromCache } from "../util/setupRedis";
 
-const loactionToLangsMap: Record<
-  string,
-  Array<string>
-> = require("../loacationLangs.json");
+import loactionToLangsMap from '../loactionToLAngs'
+
 const lyricsFinder = require("lyrics-finder");
 const { translate } = require("bing-translate-api");
 

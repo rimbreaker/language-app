@@ -1,4 +1,4 @@
-{
+export default {
     "AE": [
         "ar"
     ],
@@ -91,4 +91,4 @@
     "TR": [
         "tr"
     ]
-}
+} as Record<string,Array<string>>
