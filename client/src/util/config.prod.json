@@ -7,5 +7,6 @@
     "storageBucket": "language-app-41dbb.appspot.com",
     "messagingSenderId": "736375782397",
     "appId": "1:736375782397:web:9aae3e020007468f733794",
-    "measurementId": "G-DJ60ZQXP0S"
+    "measurementId": "G-DJ60ZQXP0S",
+    "SERVER_URI": "https://lyrson-server.herokuapp.com"
 }

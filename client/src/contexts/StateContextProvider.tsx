@@ -2,10 +2,12 @@ import React, { createContext, useContext, useState } from 'react';
 import axios from 'axios';
 import encoding from '../encoding.json'
 import completeImagesUrls from '../imagesUrls.json'
+import config from '../util/getConfig'
 
 const StateContext = createContext<any>('');
 
 export const StateContextProvider = ({ children }: any) => {
+    console.log(config)
     const [courseLanguage, setCourseLanguage] = useState<any>()
     const [navbarOpen, setNavbarOpen] = useState(false)
     const [backgroundImage, setBackgroundImage] = useState('')
@@ -34,12 +36,12 @@ export const StateContextProvider = ({ children }: any) => {
     }
 
     const fetchTranslation = async (phrase: string, from?: string, to?: string) => {
-        return await axios({ url: `https://lyrson-server.herokuapp.com/translate/${phrase}?from=${from}&to=${to}` })
+        return await axios({ url: `${config.SERVER_URI}/translate/${phrase}?from=${from}&to=${to}` })
             .then((res) => res.data)
     }
 
     const createPlaylist = async (language: string, email: string, length?: number, genre?: string) => {
-        let requestUrl = `https://lyrson-server.herokuapp.com/createplaylist/${language}?email=${email}`
+        let requestUrl = `${config.SERVER_URI}/createplaylist/${language}?email=${email}`
         if (length) requestUrl += `&length=${length}`
         if (genre) requestUrl += `&genre=${genre}`
         axios.get(requestUrl)

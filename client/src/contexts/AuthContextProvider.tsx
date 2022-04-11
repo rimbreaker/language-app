@@ -3,7 +3,7 @@ import { useFirebaseContext } from './FireBaseContextProvider';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { signOut, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
 import SpotifyWebApi from 'spotify-web-api-node';
-import config from '../config.env.json'
+import config from '../util/getConfig'
 import { doc, getDocs, query, setDoc, where, updateDoc, deleteDoc } from 'firebase/firestore';
 import axios from 'axios';
 import { useStateContext } from './StateContextProvider';
@@ -39,7 +39,7 @@ export const AuthContextProvider = ({ children }: any) => {
         if (!refreshToken || !expiresIn) return
         const interval = setInterval(() => {
             axios
-                .post("https://lyrson-server.herokuapp.com/refresh", {
+                .post(config.SERVER_URI + "/refresh", {
                     refreshToken,
                 })
                 .then(res => {

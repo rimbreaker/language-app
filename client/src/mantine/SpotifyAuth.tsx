@@ -4,7 +4,7 @@ import axios from 'axios'
 import { useHistory } from 'react-router'
 import { useAuthContext } from '../contexts/AuthContextProvider'
 import { extractParamFromHashUrl } from '../util/extractHashUrlParam'
-
+import config from '../util/getConfig'
 
 const code = extractParamFromHashUrl("code")
 
@@ -17,8 +17,8 @@ const Auth = () => {
     useEffect(() => {
         if (!accessToken) {
             axios
-                .post("https://lyrson-server.herokuapp.com/login", {
-                    code, redirect: "https://lyrson-client.herokuapp.com/auth"
+                .post(`${config.SERVER_URI}/login`, {
+                    code, redirect: config.REDIRECT_URI
                 })
                 .then(res => {
                     setAccessToken(res.data.accessToken)

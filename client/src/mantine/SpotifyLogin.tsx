@@ -1,11 +1,11 @@
 import React from "react"
 import { Button } from "@mantine/core"
 import { BrandSpotify } from "tabler-icons-react"
-import config from '../config.env.json'
+import config from '../util/getConfig'
 import { useTranslation } from 'react-i18next'
 
 const AUTH_URL =
-    `https://accounts.spotify.com/authorize?client_id=${config.CLIENT_ID}&response_type=code&redirect_uri=https://lyrson-client.herokuapp.com/auth&scope=streaming%20user-read-email%20user-read-private%20user-library-read%20user-library-modify%20user-read-playback-state%20user-modify-playback-state%20playlist-modify-private%20playlist-modify-public%20playlist-read-collaborative%20playlist-read-private`
+    `https://accounts.spotify.com/authorize?client_id=${config.CLIENT_ID}&response_type=code&redirect_uri=${config.REDIRECT_URI}&scope=streaming%20user-read-email%20user-read-private%20user-library-read%20user-library-modify%20user-read-playback-state%20user-modify-playback-state%20playlist-modify-private%20playlist-modify-public%20playlist-read-collaborative%20playlist-read-private`
 
 export default function SpotifyLogin({ isMainLogin }: { isMainLogin?: boolean }) {
 

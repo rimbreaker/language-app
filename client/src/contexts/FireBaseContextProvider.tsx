@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { initializeApp } from 'firebase/app'
-import config from '../config.env.json'
+import config from '../util/getConfig'
 import { getAuth } from 'firebase/auth';
 import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import axios from 'axios';
@@ -110,7 +110,7 @@ export const FirebaseContextProvider = ({ children }: any) => {
 
         updateDoc(doc(db, 'playlists', playlistId), { [songId]: true })
         setDoc(doc(db, 'translations', songId + '[' + playlistId.split('[')[0]), { songId, playlistId, lyrics, userId: playlistId.split('[')[0] })
-        axios.post('https://lyrson-server.herokuapp.com/completesong/', {
+        axios.post(config.SERVER_URI + '/completesong/', {
             songName: currentSong.title + currentSong.artist
             , lyrics: currentSong.lyrics
                 .replaceAll('\n', ' ')

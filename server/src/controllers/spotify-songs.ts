@@ -244,7 +244,24 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
           redListedWordsArray.push(wordsToUse[index]);
         return tracksArr;
       })
-      .flat();
+      .flat()
+      .reduce(
+        (
+          prev: SpotifyApi.TrackObjectFull[],
+          curr: SpotifyApi.TrackObjectFull
+        ) => {
+          const previousTracksIds = prev.map(
+            (track) => track.artists[0].name + track.name
+          );
+
+          if (previousTracksIds.includes(curr.artists[0].name + curr.name)) {
+            return prev;
+          }
+
+          return [...prev, curr];
+        },
+        []
+      );
 
     const resultSongs: song[] = [];
     let tracksIndex = 0;
