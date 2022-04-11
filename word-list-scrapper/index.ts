@@ -169,24 +169,7 @@ const getRepeatingWords = () => {
   const limit = pLimit(1);
 
   const ESarr = FR as string[];
-
-  ESarr.forEach(async (word) => {
-    if (counter < 1000) {
-      const tranRes = await limit(
-        () =>
-          new Promise((res) => {
-            setTimeout(
-              async () => res(await translate(word, "fr", "en", false)),
-              1000
-            );
-          })
-      ).catch(() => ({ language: { from: "lol" } }));
-      if ((tranRes as any).language.from === "fr") {
-        appendFileSync("FR1000.txt", word + "\n");
-        counter++;
-      }
-    }
-  });
+  console.log(FR.length);
 
   // writeFileSync(
   //   "SK1000.json",
