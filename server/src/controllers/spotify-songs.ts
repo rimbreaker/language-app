@@ -186,6 +186,7 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
 
   while (wordsToUse.length < playlistLength) {
     const wordToCheck = listOfAllwords[allWordsListIndex];
+    console.log("checking word: " + wordToCheck);
     allWordsListIndex++;
     if (redListedWordsArray.includes(wordToCheck)) continue;
     if (learnedWordsArray.includes(wordToCheck)) continue;
@@ -241,6 +242,7 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
 
     const resultSongs: song[] = [];
     let tracksIndex = 0;
+    console.log("getting songs");
     while (resultSongs.length < playlistLength) {
       console.log(resultSongs.length, playlistLength, tracksIndex);
       const trackToCheck = tracks[tracksIndex];
