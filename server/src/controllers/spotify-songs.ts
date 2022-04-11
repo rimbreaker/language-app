@@ -192,9 +192,15 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
     if (learnedWordsArray.includes(wordToCheck)) continue;
     const wordTranslationResult = await getFromCache(
       `lang${language}word${wordToCheck}`,
-      async () => await translate(decodeURI(wordToCheck), language, "en", false)
+      async () =>
+        await translate(
+          decodeURI(wordToCheck),
+          language.toLowerCase(),
+          "en",
+          false
+        )
     ); //TODO: add try catch and cache
-    if (wordTranslationResult.language.from !== language) {
+    if (wordTranslationResult.language.from !== language.toLowerCase()) {
       redListedWordsArray.push(decodeURI(wordToCheck));
       continue;
     }
