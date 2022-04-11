@@ -27,9 +27,7 @@ const Auth = () => {
                 })
                 .then(() => {
                     const locationToPush = localStorage.getItem('preAuthLoc')
-                    // window.history.replaceState({}, "", locationToPush)
                     history.push(locationToPush ?? '/')
-                    //          window.history.go(0)
                     localStorage.removeItem('preAuthLoc')
                 })
                 .catch(() => {
