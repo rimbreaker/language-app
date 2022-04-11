@@ -11,6 +11,7 @@
         "logout": "wyloguj"
     },
     "navbar": {
+        "startCourse": "rozpocznij",
         "newCourse": "nowy kurs",
         "availableLangs": "dostępne języki",
         "avLangDes": "wybierz język do nauki",
@@ -64,7 +65,7 @@
         "DE": "niemiecki",
         "DK": "duński",
         "EE": "estoński",
-        "EN": "angielski",
+        "GB": "angielski",
         "ES": "hiszpański",
         "FI": "fiński",
         "FR": "francuzki",

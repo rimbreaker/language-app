@@ -39,7 +39,7 @@ const NavbarMain = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const languageInputError = () => newCourseLanguageInput && !Object.values(availableLangs).map(({ name }: any) => name).includes(newCourseLanguageInput)
+    const languageInputError = () => newCourseLanguageInput && !Object.keys(availableLangs).map((regCode: string) => t("language." + regCode)).includes(newCourseLanguageInput)
 
     const handleCourseCreate = () => {
         createNewCourse(currentUser, languageCourse)
@@ -90,16 +90,15 @@ const NavbarMain = () => {
                             style={{ maxHeight: '30vh' }}
                             styles={{ dropdown: { overflowY: 'scroll', maxHeight: '30vh' } }}
                             height='30vh'
-                            data={Object.entries(availableLangs).map(([key, val]: any) => (
+                            data={Object.keys(availableLangs).map((key: string) => (
                                 {
                                     value: t(`language.${key}`),
                                     encode: key,
-                                    ...val
                                 }
                             ))} />
 
                         <Button onClick={handleCourseCreate} disabled={!newCourseLanguageInput || !!languageInputError()} mt={6}>
-                            start course
+                            {t('navbar.startCourse')}
                         </Button>
                     </>
                 </Popover>

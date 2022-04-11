@@ -48,7 +48,7 @@ const SongView = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentSong])
 
-    useEffect(() => handleBackground(translation?.songId === currentSong?.youtubeId),
+    useEffect(() => handleBackground(translation?.songId === currentSong?.youtubeId && isReadyToBeSaved),
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [translation, currentSong])
 
@@ -102,7 +102,7 @@ const SongView = () => {
                             </AspectRatio>
                             <Space h='xs' />
                             {
-                                translation?.songId !== currentSong?.youtubeId &&
+                                !(translation?.songId === currentSong?.youtubeId && isReadyToBeSaved) &&
                                 <Button
                                     disabled={!isReadyToBeSaved}
                                     onClick={() => markSongAsTranslated(currentSong?.youtubeId, (singlePlaylist?.id ?? playlistLink))}

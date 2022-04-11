@@ -7,7 +7,6 @@ import { useFirebaseContext } from '../contexts/FireBaseContextProvider';
 import { useStateContext } from '../contexts/StateContextProvider';
 import { useTranslation } from 'react-i18next'
 import { useAuthContext } from '../contexts/AuthContextProvider';
-import encoding from '../encoding.json'
 import { onSnapshot } from 'firebase/firestore';
 import { extractParamFromHashUrl } from '../util/extractHashUrlParam';
 
@@ -66,10 +65,9 @@ const CourseView = () => {
     }
 
     const handlePlaylistCreate = () => {
-        const rgCode = (encoding[courseLanguage as keyof typeof encoding] as any)?.regionCode ?? courseLanguage;
 
         setPopoverOpen(false)
-        createPlaylist(rgCode, currentUser.email, daysAmount)
+        createPlaylist(courseLanguage, currentUser.email, daysAmount)
         setPlaylists((prev: any) => [...prev, { language: courseLanguage, songs: [] }])
     }
 

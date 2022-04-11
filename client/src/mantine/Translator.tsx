@@ -12,7 +12,7 @@ const Translator = ({ input, setInput }: { input: string, setInput: (a: string) 
 
     const { t, i18n } = useTranslation()
 
-    const currentLanuage = i18n.language
+    const currentLanuage = i18n.language === 'en' ? 'gb' : 'pl'
 
     const [translation, setTranslation] = useState()
 

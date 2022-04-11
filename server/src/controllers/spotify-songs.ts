@@ -18,6 +18,11 @@ import {
 import accessEnv from "../util/accessEnv";
 import axios from "axios";
 import { getFromCache } from "../util/setupRedis";
+
+const loactionToLangsMap: Record<
+  string,
+  Array<string>
+> = require("../loacationLangs.json");
 const lyricsFinder = require("lyrics-finder");
 const { translate } = require("bing-translate-api");
 
@@ -86,17 +91,15 @@ const getSongLyrics = async (artist: string, title: string) => {
   return lyrics;
 };
 
-const checkSongsLanguage = async (lyrics: string, expectedLanguage: string) => {
+const checkSongsLanguage = async (lyrics: string, langLocation: string) => {
   const sampleToTranslate = decodeURI(lyrics).slice(0, 100);
   const translation = await getFromCache(
     sampleToTranslate,
     async () => await translate(sampleToTranslate, null, "en", false)
   );
   const actualLanguage = translation.language.from;
-
-  if (expectedLanguage.toLowerCase() === "dk")
-    return actualLanguage.toLowerCase() === "da";
-  return actualLanguage.toLowerCase() === expectedLanguage.toLowerCase();
+  loactionToLangsMap[langLocation].includes(actualLanguage);
+  return loactionToLangsMap[langLocation].includes(actualLanguage);
 };
 
 const completeSong = async (req: Request, res: Response) => {
@@ -145,7 +148,7 @@ export { return30songs, completeSong, getSongsFromNextWordsToLearn2 };
 //     - update all redlists, playlists
 
 const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
-  const language = req.params.lang;
+  const language = req.params.lang; //location
   const length = req.query.length;
   const genre = req.query.genre;
   const email = req.query.email;
@@ -160,15 +163,15 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
     clientSecret: CLIENT_SECRET,
   });
 
-  const learnedWordsObject = (
-    await getDoc(doc(Words, `${email}${language}`))
-  ).data();
+  const learnedWordsObject = (await getDoc(doc(Words, `${email}${language}`))) //location
+    .data();
 
   const learnedWordsArray = Object.keys(learnedWordsObject || {});
 
   const redListedWordsObject = (
     await getDoc(doc(db, "redListedWords", `${language}`))
-  ).data();
+  ) //location
+    .data();
 
   const redListedWordsArray = Object.keys(redListedWordsObject || {});
 
@@ -195,12 +198,17 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
       async () =>
         await translate(
           decodeURI(wordToCheck),
-          language.toLowerCase(),
+
+          loactionToLangsMap[language][0],
           "en",
           false
         )
     ); //TODO: add try catch and cache
-    if (wordTranslationResult.language.from !== language.toLowerCase()) {
+    if (
+      !loactionToLangsMap[language].includes(
+        wordTranslationResult.language.from
+      )
+    ) {
       redListedWordsArray.push(decodeURI(wordToCheck));
       continue;
     }

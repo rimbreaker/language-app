@@ -1,27 +1,20 @@
 {
     "BG": {
-        "name": "bulgarian",
         "standardAlpha": false
     },
     "DK": {
-        "name": "danish",
         "standardAlpha": true
     },
-    "EN": {
-        "name": "english",
-        "standardAlpha": true,
-        "regionCode": "GB"
+    "GB": {
+        "standardAlpha": true
     },
     "DE": {
-        "name": "german",
         "standardAlpha": true
     },
     "PL": {
-        "name": "polish",
         "standardAlpha": true
     },
     "ES": {
-        "name": "spanish",
         "standardAlpha": true
     }
 }

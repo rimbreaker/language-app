@@ -24,15 +24,14 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true, 
-    "resolveJsonModule": false,
-    "baseUrl": "."
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".", 
   },
   "exclude": [
     "node_modules"
   ],
   "include": [
-    "./src/**/*.tsx",
     "./src/**/*.ts"
   ]
 }
