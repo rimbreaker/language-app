@@ -1,0 +1,92 @@
+{
+    "landingPage": {
+        "welcomeLog": "Welcome {{userName}}! You can choose/start your course on the left.",
+        "welcomeDef": "Welcome to LyrSon!! You can login with your google or spotify account to continue"
+    },
+    "fallbackPage": "You need to login to view this page",
+    "header": {
+        "googleLogin": "Login with Google",
+        "title": "LyrSon",
+        "login": "login",
+        "logout": "logout"
+    },
+    "navbar": {
+        "newCourse": "new course",
+        "availableLangs": "available languages",
+        "avLangDes": "select language to learn",
+        "language": "language"
+    },
+    "course": {
+        "courseName": "{{languageName}} course",
+        "shouldDeleteCourse": "Are you sure you want to delete this course?",
+        "yes": "yes",
+        "no": "No",
+        "playlistAdd": "add a playlist",
+        "playlistAddBlocked": "can't create a new playlist if there are some incomplete",
+        "playlistLengthQuestion": "how long do you want your next playlist?",
+        "playlistLengthInfo": "Number of songs/days. minimum is 10, maximum is 30",
+        "genre": "music genre",
+        "genreInfo": "we can try to adjust playlist to your music genre prefenrence",
+        "optional": "optional",
+        "create": "create",
+        "wordsLearned": "words learned",
+        "delete": "Delete course",
+        "playlists": "your playlists:"
+    },
+    "playlist": {
+        "playlistName": "Playlist: {{languageName}} {{playlistIndex}}",
+        "completion": "completion",
+        "deletePlaylist": "Delete playlist",
+        "addToSpotify": "Add to your Spotify",
+        "playOnSpotify": "Play on Spotify",
+        "playOnYoutue": "Play on Youtue",
+        "translationsReminder": "add a reminder for translations",
+        "listeningReminder": "add a reminder for listening",
+        "complete": "complete",
+        "deleteShould": "Are you sure you want to delete this playlist?",
+        "yes": "yes",
+        "no": "No",
+        "reminderTranslateTitle": "Time+for+translations: {{language}}",
+        "reminderListenTitle": "Time+for+you+playlist: {{language}}",
+        "translationRemDesc": "a+reminder+for+your+Lyrson+course"
+    },
+    "song": {
+        "markReady": "mark song as translated"
+    },
+    "spotifyLogin": {
+        "with": "Login with Spotify",
+        "to": "Login to Spotify"
+    },
+    "language": {
+        "AE": "arabic",
+        "BG": "bulgarian",
+        "CZ": "czech",
+        "DE": "german",
+        "DK": "danish",
+        "EE": "estonian",
+        "EN": "english",
+        "ES": "spanish",
+        "FI": "finnish",
+        "FR": "french",
+        "GR": "greek",
+        "HR": "croatian",
+        "HU": "hungarian",
+        "IL": "hebrew",
+        "IS": "icelandic",
+        "IT": "italian",
+        "LV": "latvian",
+        "MK": "macedonian",
+        "MY": "malay",
+        "NL": "dutch",
+        "NO": "norwegian",
+        "PL": "polish",
+        "PT": "portuguese",
+        "RO": "romanian",
+        "RS": "serbian",
+        "RU": "russian",
+        "SE": "swedish",
+        "SI": "slovenian",
+        "SK": "slovak",
+        "TR": "turkish"
+    }
+}
