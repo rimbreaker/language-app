@@ -19,7 +19,7 @@ import accessEnv from "../util/accessEnv";
 import axios from "axios";
 import { getFromCache } from "../util/setupRedis";
 
-import loactionToLangsMap from '../loactionToLAngs'
+import loactionToLangsMap from "../loactionToLAngs";
 
 const lyricsFinder = require("lyrics-finder");
 const { translate } = require("bing-translate-api");
@@ -370,6 +370,7 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
         artist: song.artist,
         albumUrl: song.albumUrl,
         youtubeId: song.youtubeId,
+        uri: String(song.uri),
       })),
       completionPercentage: 0,
       language: language,

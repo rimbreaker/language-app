@@ -110,12 +110,11 @@ export const AuthContextProvider = ({ children }: any) => {
             const spotifyApi = new SpotifyWebApi({
                 clientId: config.CLIENT_ID,
             })
-            const playlistName = playlist.id.slice(playlist.id.indexOf(playlist.language))
+            const playlistName = playlist.id.slice(playlist.id.indexOf(playlist.language)).replace('[', '')
             spotifyApi.setAccessToken(accessToken)
             spotifyApi.createPlaylist(playlistName)
                 .then((pl) => {
-                    console.log(pl)
-                    const playlistId = pl.body.id//spotifyApi.addTracksToPlaylist()
+                    const playlistId = pl.body.id
                     spotifyApi.addTracksToPlaylist(playlistId, playlist.songs.map((song: any) => song.uri))
                         .then(() => {
                             updateDoc(doc(db, 'playlists', playlist.id), { spotifyLink: pl.body.uri });
