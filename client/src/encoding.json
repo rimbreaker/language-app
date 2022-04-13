@@ -16,5 +16,77 @@
     },
     "ES": {
         "standardAlpha": true
+    },
+    "AE": {
+        "standardAlpha": false
+    },
+    "HR": {
+        "standardAlpha": true
+    },
+    "CZ": {
+        "standardAlpha": true
+    },
+    "NL": {
+        "standardAlpha": true
+    },
+    "EE": {
+        "standardAlpha": true
+    },
+    "FI": {
+        "standardAlpha": true
+    },
+    "FR": {
+        "standardAlpha": true
+    },
+    "GR": {
+        "standardAlpha": false
+    },
+    "IL": {
+        "standardAlpha": false
+    },
+    "HU": {
+        "standardAlpha": true
+    },
+    "IS": {
+        "standardAlpha": true
+    },
+    "IT": {
+        "standardAlpha": true
+    },
+    "LV": {
+        "standardAlpha": true
+    },
+    "MK": {
+        "standardAlpha": false
+    },
+    "MY": {
+        "standardAlpha": true
+    },
+    "NO": {
+        "standardAlpha": true
+    },
+    "PT": {
+        "standardAlpha": true
+    },
+    "RO": {
+        "standardAlpha": true
+    },
+    "RU": {
+        "standardAlpha": false
+    },
+    "RS": {
+        "standardAlpha": false
+    },
+    "SK": {
+        "standardAlpha": true
+    },
+    "SI": {
+        "standardAlpha": true
+    },
+    "SE": {
+        "standardAlpha": true
+    },
+    "TR": {
+        "standardAlpha": false
     }
 }

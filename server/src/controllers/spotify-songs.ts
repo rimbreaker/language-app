@@ -143,10 +143,10 @@ export { return30songs, completeSong, getSongsFromNextWordsToLearn2 };
 //          - if try catch works but the language is bad, then add song to redlist
 //          - otherwise just ommit
 //     - cache all external apis, unless the response is bad
-//     - update all redlists, playlists
+//     - update all song redlist?, playlists
 
 const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
-  const language = req.params.lang; //location
+  const language = req.params.lang;
   const length = req.query.length;
   const genre = req.query.genre;
   const email = req.query.email;
@@ -161,21 +161,21 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
     clientSecret: CLIENT_SECRET,
   });
 
-  const learnedWordsObject = (await getDoc(doc(Words, `${email}${language}`))) //location
-    .data();
+  const learnedWordsObject = (
+    await getDoc(doc(Words, `${email}${language}`))
+  ).data();
 
   const learnedWordsArray = Object.keys(learnedWordsObject || {});
 
   const redListedWordsObject = (
     await getDoc(doc(db, "redListedWords", `${language}`))
-  ) //location
-    .data();
+  ).data();
 
   const redListedWordsArray = Object.keys(redListedWordsObject || {});
 
   const listOfAllwords: string[] = JSON.parse(
     fs
-      .readFileSync(path.join(wordLisrtDirectory, `${language}1000.json`)) //TODO: change to the unfiltered one
+      .readFileSync(path.join(wordLisrtDirectory, `${language}1000000.json`)) //TODO: change to the unfiltered one
       .toString()
   );
 
@@ -187,7 +187,6 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
 
   while (wordsToUse.length < playlistLength) {
     const wordToCheck = listOfAllwords[allWordsListIndex];
-    console.log("checking word: " + wordToCheck);
     allWordsListIndex++;
     if (redListedWordsArray.includes(wordToCheck)) continue;
     if (learnedWordsArray.includes(wordToCheck)) continue;
@@ -201,7 +200,7 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
           "en",
           false
         )
-    ); //TODO: add try catch and cache
+    ); //TODO: add try catch
     if (
       !loactionToLangsMap[language].includes(
         wordTranslationResult.language.from
@@ -377,6 +376,13 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
       userMail,
       youtubeLink: youtubeLink,
     });
+
+    setDoc(
+      doc(db, "redListedWords", language),
+      redListedWordsArray.reduce((prev, curr) => {
+        return { ...prev, [curr]: true };
+      }, {})
+    );
 
     console.log("playlist ready");
     //gun js playlist ready
