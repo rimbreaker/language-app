@@ -246,7 +246,7 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
     const tracks = spotifyResults
       .map((spoRes, index) => {
         const tracksArr = spoRes.body.tracks?.items ?? [];
-        if ((tracksArr.length ?? 0) < 1)
+        if ((tracksArr.length ?? 0) < 1 && genre === undefined)
           redListedWordsArray.push(wordsToUse[index]);
         return tracksArr;
       })

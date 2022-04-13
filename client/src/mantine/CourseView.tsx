@@ -53,6 +53,7 @@ const CourseView = () => {
     }, [courseLanguage])
 
     const [daysAmount, setDaysAmount] = useState(10)
+    const [genre, setGenre] = useState<any>()
     const [popoverOpen, setPopoverOpen] = useState(false)
     const [modalOpen, setModalOpen] = useState(false)
     const disabled = () => playlists?.map(calculateCompletion).some((comp: number) => comp !== 100)
@@ -67,7 +68,7 @@ const CourseView = () => {
     const handlePlaylistCreate = () => {
 
         setPopoverOpen(false)
-        createPlaylist(courseLanguage, currentUser.email, daysAmount)
+        createPlaylist(courseLanguage, currentUser.email, daysAmount, genre)
         setPlaylists((prev: any) => [...prev, { language: courseLanguage, songs: [] }])
     }
 
@@ -136,6 +137,7 @@ const CourseView = () => {
                             label={t("course.genre")}
                             description={t('course.genreInfo')}
                             placeholder={t('course.optional')}
+                            onChange={setGenre}//TODO:
                             limit={musicGenres.length}
                             data={musicGenres}
                             styles={{ dropdown: { overflowY: 'scroll', maxHeight: '20vh' } }}
