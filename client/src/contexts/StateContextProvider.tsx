@@ -3,13 +3,20 @@ import axios from 'axios';
 import encoding from '../encoding.json'
 import completeImagesUrls from '../imagesUrls.json'
 import config from '../util/getConfig'
+import { io } from 'socket.io-client'
+import { useFirebaseContext } from './FireBaseContextProvider'
+
 
 const StateContext = createContext<any>('');
 
 export const StateContextProvider = ({ children }: any) => {
+
     const [courseLanguage, setCourseLanguage] = useState<any>()
     const [navbarOpen, setNavbarOpen] = useState(false)
     const [backgroundImage, setBackgroundImage] = useState('')
+    const [playlistStatus, setPlaylistStatus] = useState(0)
+
+    const { fetchPlaylists } = useFirebaseContext()
 
     const handleBackground = (hasBackground: boolean) => {
 
@@ -40,10 +47,25 @@ export const StateContextProvider = ({ children }: any) => {
     }
 
     const createPlaylist = async (language: string, email: string, length?: number, genre?: string) => {
-        let requestUrl = `${config.SERVER_URI}/createplaylist/${language}?email=${email}`
-        if (length) requestUrl += `&length=${length}`
-        if (genre) requestUrl += `&genre=${genre}`
-        axios.get(requestUrl)
+        const sock = io(config.SERVER_URI)
+        sock.on('connect', () => {
+            sock.emit('assign', `${email}${language}`)
+        })
+        sock.on("playlist-status", (m) => {
+            setPlaylistStatus(m)
+            console.log(m)
+        })
+        sock.on("playlist-ready", () => {
+            sock.disconnect()
+            fetchPlaylists(`${email}${language}`).then(setPlaylistStatus(0))
+        })
+        sock.on('id', (id) => {
+            let requestUrl = `${config.SERVER_URI}/createplaylist/${language}?email=${email}`
+            if (length) requestUrl += `&length=${length}`
+            if (genre) requestUrl += `&genre=${genre}`
+            requestUrl += `&socketid=${id}`
+            axios.get(requestUrl)
+        })
     }
 
     return (
@@ -57,7 +79,8 @@ export const StateContextProvider = ({ children }: any) => {
                 createPlaylist,
                 courseLanguage,
                 setCourseLanguage,
-                ensureLanguageByPlaylist
+                ensureLanguageByPlaylist,
+                playlistStatus
             }}
         >
             {children}

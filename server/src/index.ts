@@ -7,9 +7,18 @@ import spotifySongsRouter from "./routes/spotify-songs";
 import spotifyPlayerRouter from "./routes/spotify-player-routes";
 import translateRouter from "./routes/translationRoutes";
 import { connectRedis } from "./util/setupRedis";
+import { Server } from "socket.io";
+import { createServer } from "http";
+import { setupSocketServer } from "./util/setupSocketServer";
+
+const CLIENT_URI = accessEnv("CLIENT_URI", "http://localhost:3000");
 
 const main = () => {
   const app = express();
+  const httpServer = createServer(app);
+  const io = new Server(httpServer, {
+    cors: { origin: [CLIENT_URI] },
+  });
   app.use(
     cors({
       origin: "*",
@@ -17,8 +26,6 @@ const main = () => {
   );
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-
-  connectRedis();
 
   const PORT = accessEnv("PORT", 4000);
 
@@ -28,9 +35,15 @@ const main = () => {
 
   app.use(translateRouter);
 
-  setupSwagger(app);
+  io.on("connect", (socket) => {
+    io.to(socket.id).emit("id", socket.id);
+  });
 
-  app.listen(PORT, () => {
+  connectRedis();
+  setupSwagger(app);
+  setupSocketServer(io);
+
+  httpServer.listen(PORT, () => {
     console.debug(`server is running on http://localhost:${PORT} `);
   });
 };

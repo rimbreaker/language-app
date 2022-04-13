@@ -1,8 +1,6 @@
-import pLimit from "p-limit";
 import { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
-import { searchSong } from "../interfaces/spotify";
 import SpotifyWebApi from "spotify-web-api-node";
 const { Words, Playlists, db } = require("../interfaces/firebase");
 import {
@@ -21,6 +19,10 @@ import { getFromCache } from "../util/setupRedis";
 
 import loactionToLangsMap from "../util/loactionToLangs";
 import spotifyMarkets from "../util/spotifyMarkets";
+import {
+  sendPlaylistStatus,
+  sendPlaylistReady,
+} from "../util/setupSocketServer";
 
 const lyricsFinder = require("lyrics-finder");
 const { translate } = require("bing-translate-api");
@@ -40,30 +42,6 @@ type song = {
   language: string;
   genre: string;
   lyrics: string;
-};
-
-const return30songs = async (req: Request, res: Response) => {
-  const countryCode = req.params.countryCode;
-  const genre = req.query.genre;
-
-  const wordLisrtDirectory = path.resolve(process.cwd(), "./src/wordLists");
-
-  const limit = pLimit(15);
-
-  const wordsList: string[] = JSON.parse(
-    fs
-      .readFileSync(path.join(wordLisrtDirectory, `${countryCode}1000.json`))
-      .toString()
-  );
-  const top30Words = wordsList.slice(0, 30);
-
-  const songsData = await Promise.all(
-    top30Words.map((word) =>
-      limit(() => searchSong(countryCode, word, genre as any))
-    )
-  );
-
-  res.json(songsData);
 };
 
 const getYoutubeId = async (artist: string, track: string) => {
@@ -137,7 +115,7 @@ const completeSong = async (req: Request, res: Response) => {
   res.send("OK");
 };
 
-export { return30songs, completeSong, getSongsFromNextWordsToLearn2 };
+export { completeSong, getSongsFromNextWordsToLearn2 };
 
 //TODO:
 //     - check language of the song by try catch
@@ -151,9 +129,11 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
   const length = req.query.length;
   const genre = req.query.genre;
   const email = req.query.email;
+  const socketId: string = req.query.socketid as any;
   console.log("starting a playlist");
 
   res.send("OK");
+  sendPlaylistStatus(socketId, 0);
 
   const wordLisrtDirectory = path.resolve(process.cwd(), "./src/wordLists");
 
@@ -273,7 +253,7 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
     let tracksIndex = 0;
     console.log("getting songs");
     while (resultSongs.length < playlistLength) {
-      console.log(resultSongs.length, playlistLength, tracksIndex);
+      sendPlaylistStatus(socketId, resultSongs.length / playlistLength);
       const trackToCheck = tracks[tracksIndex];
 
       tracksIndex++;
@@ -384,8 +364,7 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
         return { ...prev, [curr]: true };
       }, {})
     );
-
     console.log("playlist ready");
-    //gun js playlist ready
+    sendPlaylistReady(socketId);
   });
 };

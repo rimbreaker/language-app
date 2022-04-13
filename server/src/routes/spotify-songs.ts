@@ -1,5 +1,4 @@
 import express from "express";
-import { return30songs } from "../controllers/spotify-songs";
 //import controllers
 const router = express.Router();
 
@@ -188,6 +187,5 @@ const router = express.Router();
  *       '200':
  *         description: the array of succesfully fetched songs
  */
-router.get("/next30songs/:countryCode", return30songs);
 
 export default router;

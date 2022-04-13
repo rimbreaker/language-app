@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Autocomplete, Button, NumberInput, Popover, ScrollArea, Text, Tooltip, SimpleGrid, Group, Title, Modal } from '@mantine/core';
+import { Autocomplete, Button, NumberInput, Popover, ScrollArea, Text, Tooltip, SimpleGrid, Group, Title, Modal, LoadingOverlay, RingProgress } from '@mantine/core';
 import musicGenres from '../musicGenres.json'
 import { useHistory } from 'react-router';
 import { Trash } from 'tabler-icons-react';
@@ -7,7 +7,6 @@ import { useFirebaseContext } from '../contexts/FireBaseContextProvider';
 import { useStateContext } from '../contexts/StateContextProvider';
 import { useTranslation } from 'react-i18next'
 import { useAuthContext } from '../contexts/AuthContextProvider';
-import { onSnapshot } from 'firebase/firestore';
 import { extractParamFromHashUrl } from '../util/extractHashUrlParam';
 
 const calculateCompletion = (playlist: any) => {
@@ -20,20 +19,11 @@ const calculateCompletion = (playlist: any) => {
 
 const CourseView = () => {
 
-    const { playlists,/* fetchPlaylists,*/ setSinglePlaylist, setPlaylists, deleteCourse, courses } = useFirebaseContext()
-    const { createPlaylist, courseLanguage, setCourseLanguage, handleBackground } = useStateContext()
-    const { currentUser, playlistQuery } = useAuthContext()
+    const { playlists, fetchPlaylists, setSinglePlaylist, setPlaylists, deleteCourse, courses } = useFirebaseContext()
+    const { createPlaylist, courseLanguage, setCourseLanguage, handleBackground, playlistStatus } = useStateContext()
+    const { currentUser } = useAuthContext()
 
     const currentWordsCounter = courses?.find((course: any) => course.language === courseLanguage)?.wordsLearned ?? 0
-
-    useEffect(() => {
-        onSnapshot(playlistQuery, (snapshot: any) => {
-            setPlaylists(snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() })))
-        })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [courseLanguage])
-
-
 
     const history = useHistory()
 
@@ -45,9 +35,9 @@ const CourseView = () => {
             else
                 history.push('/')
         }
-        //   else {
-        //       fetchPlaylists(`${currentUser.email}${courseLanguage}`)
-        //   }
+        else {
+            fetchPlaylists(`${currentUser.email}${courseLanguage}`)
+        }
         handleBackground(false)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [courseLanguage])
@@ -137,7 +127,7 @@ const CourseView = () => {
                             label={t("course.genre")}
                             description={t('course.genreInfo')}
                             placeholder={t('course.optional')}
-                            onChange={setGenre}//TODO:
+                            onChange={setGenre}
                             limit={musicGenres.length}
                             data={musicGenres}
                             styles={{ dropdown: { overflowY: 'scroll', maxHeight: '20vh' } }}
@@ -168,15 +158,31 @@ const CourseView = () => {
                     { minWidth: 650, cols: 3, spacing: 'sm' },
                     { minWidth: 980, cols: 4, spacing: 'md' },
                 ]}>
-                    {(playlists ?? []).map((playlist: any) => (
-                        <Button
-                            loading={!playlist?.index ?? true}
-                            key={playlist.id}
-                            color={calculateCompletion(playlist) === 100 ? 'green' : 'yellow'}
-                            onClick={() => navigateToPlaylist(playlist)}
-                            style={{ textTransform: 'capitalize' }}
-                        >{t(`language.${playlist.language}`)} {playlist?.index}</Button>
-                    ))}
+                    {(playlists ?? []).map((playlist: any, index: number) => {
+                        const buttonLoading = !playlist?.index ?? true
+                        return (
+                            <Button
+                                key={index}
+                                color={calculateCompletion(playlist) === 100 ? 'green' : 'yellow'}
+                                onClick={() => buttonLoading ? undefined : navigateToPlaylist(playlist)}
+                                style={{ textTransform: 'capitalize' }}
+                            >
+                                <LoadingOverlay
+                                    overlayOpacity={0.8}
+                                    visible={buttonLoading}
+                                    loader={
+                                        <RingProgress
+                                            size={50}
+                                            sections={[{
+                                                value: (Number.isNaN(playlistStatus) ? 0 : playlistStatus) * 100,
+                                                color: 'blue'
+                                            }]}
+                                        />
+                                    } />
+                                {t(`language.${playlist.language}`)} {playlist?.index}
+                            </Button>
+                        )
+                    })}
                 </SimpleGrid>
             </ScrollArea>
         </div >
