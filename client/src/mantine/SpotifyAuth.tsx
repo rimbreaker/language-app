@@ -10,7 +10,7 @@ const code = extractParamFromHashUrl("code")
 const Auth = () => {
 
     const history = useHistory()
-    const { spotifyLogin, accessToken, setAccessToken, setRefreshToken, setExpiresIn } = useAuthContext()
+    const { spotifyLogin, accessToken, setAccessToken, setRefreshToken, setExpiresIn, setSpotifyLoginTime } = useAuthContext()
 
 
     useEffect(() => {
@@ -23,15 +23,18 @@ const Auth = () => {
                     setAccessToken(res.data.accessToken)
                     setRefreshToken(res.data.refreshToken)
                     setExpiresIn(res.data.expiresIn)
-                    spotifyLogin(res.data.accessToken)
+                    spotifyLogin(res.data.accessToken, res.data.expiresIn, res.data.refreshToken)
+                    setSpotifyLoginTime(Date.now())
                 })
                 .then(() => {
                     const locationToPush = localStorage.getItem('preAuthLoc')
-                    history.push(locationToPush ?? '/')
                     localStorage.removeItem('preAuthLoc')
+                    history.push(locationToPush ?? '/')
                 })
                 .catch(() => {
-                    window.location = ("/" as any)
+                    const locationToPush = localStorage.getItem('preAuthLoc')
+                    localStorage.removeItem('preAuthLoc')
+                    history.push(locationToPush ?? "/" as any)
                 })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

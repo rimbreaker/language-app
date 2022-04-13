@@ -21,6 +21,7 @@ export const AuthContextProvider = ({ children }: any) => {
     const [accessToken, setAccessToken] = useState()
     const [refreshToken, setRefreshToken] = useState()
     const [expiresIn, setExpiresIn] = useState()
+    const [spotifyLoginTime, setSpotifyLoginTime] = useState()
 
     const [googleUser] = useAuthState(auth)
     useEffect(() => {
@@ -34,9 +35,23 @@ export const AuthContextProvider = ({ children }: any) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [googleUser])
 
+    useEffect(() => {
+        const cachedSpotifyProps = localStorage.getItem("spotifyParams")
+        if (cachedSpotifyProps) {
+            const cachedSpotifyPropsObject = JSON.parse(cachedSpotifyProps)
+            if ((cachedSpotifyPropsObject.expiresIn * 1000 ?? 0) - Date.now() + (cachedSpotifyPropsObject.spotifyLoginTime ?? 0) > 0) {
+                setAccessToken(cachedSpotifyPropsObject.accessToken);
+                setExpiresIn(cachedSpotifyPropsObject.expiresIn);
+                setRefreshToken(cachedSpotifyPropsObject.refreshToken);
+                setSpotifyLoginTime(cachedSpotifyPropsObject.spotifyLoginTime);
+            }
+        }
+    }, [])
+
 
     useEffect(() => {
-        if (!refreshToken || !expiresIn) return
+        const offsetEspiresIn = (expiresIn ?? 0) * 1000 - Date.now() + (spotifyLoginTime ?? 0)
+        if (!refreshToken || !expiresIn || offsetEspiresIn < 0) return
         const interval = setInterval(() => {
             axios
                 .post(config.SERVER_URI + "/refresh", {
@@ -49,27 +64,32 @@ export const AuthContextProvider = ({ children }: any) => {
                 .catch(() => {
                     window.location = ("/" as any)
                 })
-        }, (expiresIn - 60) * 1000)
-
+        }, offsetEspiresIn)
         return () => clearInterval(interval)
-    }, [refreshToken, expiresIn])
+    }, [refreshToken, expiresIn, spotifyLoginTime])
 
-    const spotifyLogin = async (accessToken: string) => {
+    const spotifyLogin = async (accessToken: string, expiresIn: string, refreshToken: string) => {
+
+        localStorage.setItem('spotifyParams',
+            JSON.stringify({
+                accessToken: accessToken,
+                refreshToken: refreshToken,
+                expiresIn: expiresIn,
+                spotifyLoginTime: Date.now()
+            }))
         const spotifyApi = new SpotifyWebApi({
             clientId: config.CLIENT_ID,
         })
         spotifyApi.setAccessToken(accessToken)
         const userInfo = await spotifyApi.getMe()
-
-        const exisitngUser = await getUserByEmail(userInfo.body.email)
+        const exisitngUser: any = await getUserByEmail(userInfo.body.email)
         if (exisitngUser) {
-            setCurrentUser({ ...currentUser, ...(exisitngUser as any) })
+            setCurrentUser((user) => ({ ...user, ...exisitngUser }))
         } else {
             const { display_name, email, images } = userInfo.body
-            const haveImages = (images?.length ?? 0) > 0
-            const userObject = { displayName: display_name, email }
-            setDoc(doc(db, 'usersData', email || "default"), haveImages ? { ...userObject, photoURL: images![0] } : userObject)
-            setCurrentUser((user) => ({ ...user, ...currentUser, ...userObject }))
+            const userObject = { displayName: display_name, email, photoURL: images?.[0] ?? undefined }
+            setDoc(doc(db, 'usersData', email || "default"), userObject)
+            setCurrentUser((user) => ({ ...user, ...userObject }))
         }
     }
 
@@ -103,6 +123,7 @@ export const AuthContextProvider = ({ children }: any) => {
         setAccessToken(undefined)
         setRefreshToken(undefined)
         setExpiresIn(undefined)
+        localStorage.removeItem("spotifyParams")
     }
 
     const createSpotifyPlaylist = (playlist: any) => {
@@ -151,7 +172,8 @@ export const AuthContextProvider = ({ children }: any) => {
                 googleLogin,
                 logout,
                 createSpotifyPlaylist,
-                deletePlaylist
+                deletePlaylist,
+                setSpotifyTimeStamp: setSpotifyLoginTime
             }}
         >
             {children}
