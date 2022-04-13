@@ -1,6 +1,6 @@
 import React from "react"
 import { Button } from "@mantine/core"
-import { BrandSpotify } from "tabler-icons-react"
+import { BrandSpotify } from "../util/MiniTablerIcons"
 import config from '../util/getConfig'
 import { useTranslation } from 'react-i18next'
 

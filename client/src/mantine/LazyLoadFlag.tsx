@@ -7,7 +7,7 @@ const LazyFlag = ({ countryCode }: { countryCode: string }) => {
 
     return <Avatar
         alt={`${countryCode}`}
-        src={`http://purecatamphetamine.github.io/country-flag-icons/1x1/${regionCode}.svg`}
+        src={`https://purecatamphetamine.github.io/country-flag-icons/1x1/${regionCode}.svg`}
     />
 }
 

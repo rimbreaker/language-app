@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Space, Button, ScrollArea, Text, Group, Avatar, Title, List, Paper, Grid, Modal } from '@mantine/core';
-import { BrandYoutube, BrandSpotify, CalendarEvent, Trash } from 'tabler-icons-react'
+import { BrandYoutube, BrandSpotify, CalendarEvent, Trash } from '../util/MiniTablerIcons'
 import { useHistory } from 'react-router';
 import SpotifyLogin from './SpotifyLogin';
 import { useFirebaseContext } from '../contexts/FireBaseContextProvider';

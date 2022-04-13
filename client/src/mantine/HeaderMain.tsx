@@ -4,7 +4,7 @@ import { useHistory } from 'react-router'
 import { useStateContext } from '../contexts/StateContextProvider'
 import LazyFlag from './LazyLoadFlag'
 import SpotifyLogin from './SpotifyLogin'
-import { BrandGoogle } from 'tabler-icons-react'
+import { BrandGoogle } from '../util/MiniTablerIcons'
 import { useAuthContext } from '../contexts/AuthContextProvider'
 import { useTranslation } from 'react-i18next'
 
