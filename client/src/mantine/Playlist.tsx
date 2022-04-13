@@ -136,7 +136,7 @@ const Playlist = () => {
                         component='a'
                         target='_blank'
                         rel='noopener noreferrer'
-                        href={`https://calendar.google.com/calendar/event?action=TEMPLATE&dates=${getDateForCalendar()}&text=${t("playlist.reminderTranslateTitle", { language: 'Dutch' })}&details=${t("playlist.translationRemDesc")}&location=${window.location.href}&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D${playlist?.songs?.length ?? 10}`}
+                        href={`https://calendar.google.com/calendar/event?action=TEMPLATE&dates=${getDateForCalendar()}&text=${t("playlist.reminderTranslateTitle", { language: t(`language.${playlist?.language}`) })}&details=${t("playlist.translationRemDesc")}&location=${escape(window.location.href)}&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D${playlist?.songs?.length ?? 10}`}
                     >{t("playlist.translationsReminder")}</Button>
                     <Space h="xs" />
                     <Button
@@ -144,7 +144,7 @@ const Playlist = () => {
                         component='a'
                         target='_blank'
                         rel='noopener noreferrer'
-                        href={`https://calendar.google.com/calendar/event?action=TEMPLATE&dates=${getDateForCalendar()}&text=${t("playlist.reminderListenTitle", { language: 'Dutch' })}&details=${t("playlist.translationRemDesc")}&location=${window.location.href}&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D${playlist?.songs?.length ?? 10}`}
+                        href={`https://calendar.google.com/calendar/event?action=TEMPLATE&dates=${getDateForCalendar()}&text=${t("playlist.reminderListenTitle", { language: t(`language.${playlist?.language}`) })}&details=${t("playlist.translationRemDesc")}&location=${escape(window.location.href)}&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D${playlist?.songs?.length ?? 10}`}
                     >{t("playlist.listeningReminder")}</Button>
                     {/* <button onClick={() => spotifyApi.createPlaylist('test playlist')}> add spotify playlist</button> */}
                 </Grid.Col>
