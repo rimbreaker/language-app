@@ -37,6 +37,7 @@ export const AuthContextProvider = ({ children }: any) => {
 
     useEffect(() => {
         const cachedSpotifyProps = localStorage.getItem("spotifyParams")
+        const spotifyUser = localStorage.getItem("spotifyUser")
         if (cachedSpotifyProps) {
             const cachedSpotifyPropsObject = JSON.parse(cachedSpotifyProps)
             if ((cachedSpotifyPropsObject.expiresIn * 1000 ?? 0) - Date.now() + (cachedSpotifyPropsObject.spotifyLoginTime ?? 0) > 0) {
@@ -44,6 +45,13 @@ export const AuthContextProvider = ({ children }: any) => {
                 setExpiresIn(cachedSpotifyPropsObject.expiresIn);
                 setRefreshToken(cachedSpotifyPropsObject.refreshToken);
                 setSpotifyLoginTime(cachedSpotifyPropsObject.spotifyLoginTime);
+                if (spotifyUser) {
+                    setCurrentUser(JSON.parse(spotifyUser))
+                }
+            }
+            else {
+                localStorage.removeItem('spotifyParams')
+                localStorage.removeItem('spotifyUser')
             }
         }
     }, [])
@@ -84,12 +92,18 @@ export const AuthContextProvider = ({ children }: any) => {
         const userInfo = await spotifyApi.getMe()
         const exisitngUser: any = await getUserByEmail(userInfo.body.email)
         if (exisitngUser) {
-            setCurrentUser((user) => ({ ...user, ...exisitngUser }))
+            setCurrentUser((user) => {
+                localStorage.setItem('spotifyUser', JSON.stringify({ ...user, ...exisitngUser }));
+                return { ...user, ...exisitngUser }
+            })
         } else {
             const { display_name, email, images } = userInfo.body
             const userObject = { displayName: display_name, email, photoURL: images?.[0] ?? undefined }
             setDoc(doc(db, 'usersData', email || "default"), userObject)
-            setCurrentUser((user) => ({ ...user, ...userObject }))
+            setCurrentUser((user) => {
+                localStorage.setItem('spotifyUser', JSON.stringify({ ...user, ...userObject }));
+                return { ...user, ...userObject }
+            })
         }
     }
 
@@ -124,6 +138,7 @@ export const AuthContextProvider = ({ children }: any) => {
         setRefreshToken(undefined)
         setExpiresIn(undefined)
         localStorage.removeItem("spotifyParams")
+        localStorage.removeItem('spotifyUser')
     }
 
     const createSpotifyPlaylist = (playlist: any) => {
