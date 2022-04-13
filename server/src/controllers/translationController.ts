@@ -1,6 +1,6 @@
 const { translate } = require("bing-translate-api");
 import { Request, Response } from "express";
-import loactionToLangsMap from "../loactionToLAngs";
+import loactionToLangsMap from "../util/loactionToLangs";
 
 const translator = async (req: Request, res: Response) => {
   const phrase = decodeURI(req.params.phrase);

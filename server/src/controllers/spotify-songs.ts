@@ -19,7 +19,8 @@ import accessEnv from "../util/accessEnv";
 import axios from "axios";
 import { getFromCache } from "../util/setupRedis";
 
-import loactionToLangsMap from "../loactionToLAngs";
+import loactionToLangsMap from "../util/loactionToLangs";
+import spotifyMarkets from "../util/spotifyMarkets";
 
 const lyricsFinder = require("lyrics-finder");
 const { translate } = require("bing-translate-api");
@@ -235,7 +236,7 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
         return spotifyApi.searchTracks(
           genre ? `${word} genre:${genre}` : `${word}`,
           {
-            market: language,
+            market: spotifyMarkets.includes(language) ? language : undefined,
             limit: 10,
           }
         );
