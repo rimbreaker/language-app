@@ -146,7 +146,6 @@ const Playlist = () => {
                         rel='noopener noreferrer'
                         href={`https://calendar.google.com/calendar/event?action=TEMPLATE&dates=${getDateForCalendar()}&text=${t("playlist.reminderListenTitle", { language: t(`language.${playlist?.language}`) })}&details=${t("playlist.translationRemDesc")}&location=${escape(window.location.href)}&recur=RRULE:FREQ%3DDAILY;INTERVAL%3D1;COUNT%3D${playlist?.songs?.length ?? 10}`}
                     >{t("playlist.listeningReminder")}</Button>
-                    {/* <button onClick={() => spotifyApi.createPlaylist('test playlist')}> add spotify playlist</button> */}
                 </Grid.Col>
             </Grid>
             <Space h="xs" />

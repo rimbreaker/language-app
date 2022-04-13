@@ -9,6 +9,7 @@ const LandingPage = () => {
     const { currentUser, isLoggedIn } = useAuthContext()
     const { handleBackground } = useStateContext()
     const { t } = useTranslation()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => handleBackground(false), [])
     return (
         <Center style={{ textAlign: 'center', marginTop: '10vh' }}>{
