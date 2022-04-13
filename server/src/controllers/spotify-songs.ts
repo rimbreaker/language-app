@@ -69,7 +69,7 @@ const getSongLyrics = async (artist: string, title: string) => {
 };
 
 const checkSongsLanguage = async (lyrics: string, langLocation: string) => {
-  const sampleToTranslate = decodeURI(lyrics).slice(0, 100);
+  const sampleToTranslate = lyrics.slice(0, 100);
   const translation = await getFromCache(
     sampleToTranslate.slice(0, 20),
     async () => await translate(sampleToTranslate, null, "en", false)
