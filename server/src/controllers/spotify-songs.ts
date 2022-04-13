@@ -92,7 +92,7 @@ const getSongLyrics = async (artist: string, title: string) => {
 const checkSongsLanguage = async (lyrics: string, langLocation: string) => {
   const sampleToTranslate = decodeURI(lyrics).slice(0, 100);
   const translation = await getFromCache(
-    sampleToTranslate,
+    sampleToTranslate.slice(0, 20),
     async () => await translate(sampleToTranslate, null, "en", false)
   );
   const actualLanguage = translation.language.from;
@@ -302,9 +302,9 @@ const getSongsFromNextWordsToLearn2 = async (req: Request, res: Response) => {
         continue;
       }
 
-      const lyrics = await getSongLyrics(artist, title); // TODO: add cache
+      const lyrics = await getSongLyrics(artist, title);
 
-      if (lyrics === "") {
+      if (lyrics === "" || lyrics === '""') {
         console.log("no lyrics found!! checking another song");
         continue;
       }
