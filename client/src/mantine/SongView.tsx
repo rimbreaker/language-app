@@ -102,7 +102,7 @@ const SongView = () => {
                             </AspectRatio>
                             <Space h='xs' />
                             {
-                                !(translation?.songId === currentSong?.youtubeId && isReadyToBeSaved) &&
+                                // !(translation?.songId === currentSong?.youtubeId && isReadyToBeSaved) &&
                                 <Button
                                     disabled={!isReadyToBeSaved}
                                     onClick={() => markSongAsTranslated(currentSong?.youtubeId, (singlePlaylist?.id ?? playlistLink))}

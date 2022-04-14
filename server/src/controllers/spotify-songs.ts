@@ -86,7 +86,7 @@ const completeSong = async (req: Request, res: Response) => {
   const wordsToLearnList: string[] = JSON.parse(
     fs
       .readFileSync(
-        path.join(wordLisrtDirectory, `${courseId.slice(-2)}1000.json`)
+        path.join(wordLisrtDirectory, `${courseId.slice(-2)}1000000.json`)
       )
       .toString()
   );
