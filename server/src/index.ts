@@ -17,7 +17,7 @@ const main = () => {
   const app = express();
   const httpServer = createServer(app);
   const io = new Server(httpServer, {
-    cors: { origin: [CLIENT_URI] },
+    cors: { origin: "*" },
   });
   app.use(
     cors({
