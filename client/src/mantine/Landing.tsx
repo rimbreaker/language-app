@@ -12,11 +12,10 @@ const LandingPage = () => {
     const { handleBackground } = useStateContext()
     const { t } = useTranslation()
     const history = useHistory()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-
     useEffect(() => {
         landingPageAuthHandle(history);
         handleBackground(false)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (
