@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ActionIcon, Avatar, Burger, Button, Group, Header, MediaQuery, Modal, Popover, Title, useMantineTheme } from '@mantine/core'
 import { useHistory } from 'react-router'
 import { useStateContext } from '../contexts/StateContextProvider'
@@ -21,6 +21,12 @@ const HeaderMain = () => {
     const [modalOpen, setModalOpen] = useState(false)
 
     const { t, i18n } = useTranslation()
+
+    useEffect(() => {
+        if (window.location.href.includes('com/auth?code=') && window.location.href.slice(-2) === '#/')
+            history.push('/auth' + window.location.search.replace('#/', ''))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <>
