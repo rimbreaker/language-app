@@ -24,7 +24,7 @@ const HeaderMain = () => {
 
     useEffect(() => {
         if (window.location.href.includes('com/auth?code=') && window.location.href.slice(-2) === '#/')
-            history.push('/auth' + window.location.search.replace('#/', ''))
+            window.location.assign(window.location.href.replace('#/', '').replace('com/auth?code', 'com/#/auth?code'))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
