@@ -1,5 +1,5 @@
 {
-    "REDIRECT_URI": "https://lyrson-client.herokuapp.com/#/auth",
+    "REDIRECT_URI": "https://lyrson-client.herokuapp.com/auth",
     "CLIENT_ID": "ebc4c977fe704e089d69357271a06be0",
     "apiKey": "AIzaSyAuJAOVfEXSkU6ZLmBL1xWdeTxRePwnmqQ",
     "authDomain": "language-app-41dbb.firebaseapp.com",

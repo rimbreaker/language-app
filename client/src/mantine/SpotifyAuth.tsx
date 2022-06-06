@@ -27,14 +27,14 @@ const Auth = () => {
                     setSpotifyLoginTime(Date.now())
                 })
                 .then(() => {
-                    const locationToPush = localStorage.getItem('preAuthLoc')
+                    // const locationToPush = localStorage.getItem('preAuthLoc')
                     localStorage.removeItem('preAuthLoc')
-                    history.push(locationToPush ?? '/')
+                    //   history.push(locationToPush ?? '/')
                 })
                 .catch(() => {
-                    const locationToPush = localStorage.getItem('preAuthLoc')
+                    // const locationToPush = localStorage.getItem('preAuthLoc')
                     localStorage.removeItem('preAuthLoc')
-                    history.push(locationToPush ?? "/" as any)
+                    //   history.push(locationToPush ?? "/" as any)
                 })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
