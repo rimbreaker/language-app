@@ -3,14 +3,22 @@ import { Center, Title } from '@mantine/core';
 import { useAuthContext } from '../contexts/AuthContextProvider';
 import { useTranslation } from 'react-i18next'
 import { useStateContext } from '../contexts/StateContextProvider';
+import { useHistory } from 'react-router';
+import { landingPageAuthHandle } from '../util/landingPageAuthHandle';
 
 
 const LandingPage = () => {
     const { currentUser, isLoggedIn } = useAuthContext()
     const { handleBackground } = useStateContext()
     const { t } = useTranslation()
+    const history = useHistory()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => handleBackground(false), [])
+
+    useEffect(() => {
+        landingPageAuthHandle(history);
+        handleBackground(false)
+    }, [])
+
     return (
         <Center style={{ textAlign: 'center', marginTop: '10vh' }}>{
             isLoggedIn ?
