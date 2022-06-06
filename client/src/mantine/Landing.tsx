@@ -4,8 +4,6 @@ import { useAuthContext } from '../contexts/AuthContextProvider';
 import { useTranslation } from 'react-i18next'
 import { useStateContext } from '../contexts/StateContextProvider';
 import { useHistory } from 'react-router';
-import { landingPageAuthHandle } from '../util/landingPageAuthHandle';
-
 
 const LandingPage = () => {
     const { currentUser, isLoggedIn } = useAuthContext()
@@ -13,8 +11,9 @@ const LandingPage = () => {
     const { t } = useTranslation()
     const history = useHistory()
     useEffect(() => {
-        landingPageAuthHandle(history);
         handleBackground(false)
+        if (window.location.href.includes('com/auth?code=') && window.location.href.slice(-2) === '#/')
+            history.push('/auth' + window.location.search.replace('#/', ''))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
